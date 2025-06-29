@@ -354,17 +354,17 @@ const App = () => {
                     initial={false}
                   />
                   <span className="relative z-10 flex items-center">
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Joining...
-                      </>
-                    ) : (
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Joining...
+                    </>
+                  ) : (
                       <>
                         Join Early Access
                         <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                       </>
-                    )}
+                  )}
                   </span>
                 </motion.button>
               </form>
@@ -785,9 +785,9 @@ const App = () => {
                     whileHover={{ scale: 1.1 }}
                     transition={{ type: "spring", stiffness: 300 }}
                   />
-                  <div>
+                <div>
                     <div className="font-semibold text-white group-hover:text-primary-400 transition-colors">{testimonial.author}</div>
-                    <div className="text-white/60">{testimonial.role}</div>
+                  <div className="text-white/60">{testimonial.role}</div>
                   </div>
                 </div>
                 
@@ -850,17 +850,17 @@ const App = () => {
                   initial={false}
                 />
                 <span className="relative z-10 flex items-center">
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Joining...
-                    </>
-                  ) : (
-                    <>
-                      Join Waitlist
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Joining...
+                  </>
+                ) : (
+                  <>
+                    Join Waitlist
                       <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                    </>
-                  )}
+                  </>
+                )}
                 </span>
               </motion.button>
             </motion.form>
