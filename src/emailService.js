@@ -6,14 +6,10 @@ export const validateEmail = (email) => {
 
 // Get the correct API base URL for development vs production
 const getApiBaseUrl = () => {
-  // In development, use the proxy (localhost:3000/api -> localhost:3001/api)
-  // In production, use the Vercel deployment URL
-  if (process.env.NODE_ENV === 'development') {
-    return '/api';
-  } else {
-    // Replace this with your actual Vercel deployment URL
-    return 'https://your-project.vercel.app/api';
-  }
+  // Use relative URLs that work in both development and production
+  // In development: /api -> proxy to localhost:3001
+  // In production: /api -> Vercel serverless function
+  return '/api';
 };
 
 const API_BASE_URL = getApiBaseUrl();
