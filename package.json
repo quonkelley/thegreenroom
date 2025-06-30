@@ -2,6 +2,7 @@
   "name": "thegreenroom-ai-landing",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://quonkelley.github.io/thegreenroom/",
   "proxy": "http://localhost:3001",
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.4",

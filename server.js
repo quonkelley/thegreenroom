@@ -4,14 +4,14 @@ const { Resend } = require('resend');
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.SERVER_PORT || 3001;
+const PORT = process.env.PORT || process.env.SERVER_PORT || 3001;
 
 // Initialize Resend with error handling
 let resend;
 let resendAvailable = false;
 
 try {
-  const apiKey = process.env.REACT_APP_RESEND_API_KEY;
+  const apiKey = process.env.RESEND_API_KEY || process.env.REACT_APP_RESEND_API_KEY;
   if (!apiKey || apiKey === 'your_resend_api_key_here') {
     console.log('⚠️  Resend API key not configured. Email functionality will be disabled.');
     resend = null;
@@ -268,4 +268,7 @@ app.listen(PORT, () => {
   console.log(`📧 Email service: ${resendAvailable ? 'Ready with Resend' : 'Not configured'}`);
   console.log(`📊 Analytics tracking enabled`);
   console.log(`💾 In-memory storage active`);
-}); 
+});
+
+// Export for Vercel serverless deployment
+module.exports = app; 
