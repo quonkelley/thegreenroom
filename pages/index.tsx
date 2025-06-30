@@ -72,7 +72,7 @@ export default function Home() {
         alert(`❌ Connection failed: ${result.error}`);
       }
     } catch (error) {
-      alert(`❌ Test failed: ${error instanceof Error ? error.message : 'Unknown error occurred'}`);
+      alert(`❌ Test case failed: ${error instanceof Error ? error.message : 'Unknown error occurred'}`);
     }
   };
 
