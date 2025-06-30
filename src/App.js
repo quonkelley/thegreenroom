@@ -461,7 +461,7 @@ const App = () => {
                           <Music className="w-4 h-4 text-white" />
                         </div>
                         <div>
-                          <div className="text-white font-medium">Sarah Chen</div>
+                          <div className="text-white font-medium">Sarah Beamon</div>
                           <div className="text-white/60 text-sm">Indie Folk • Available this weekend</div>
                         </div>
                       </div>
@@ -538,7 +538,7 @@ const App = () => {
             {[
               {
                 quote: "TheGreenRoom.ai feels like having a full-time manager in my pocket. I've booked more gigs in the last month than I did all last year.",
-                author: "Sarah Chen",
+                author: "Sarah Beamon",
                 role: "Indie Folk Artist",
                 rating: 5,
                 avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face"
