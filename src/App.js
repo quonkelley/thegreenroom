@@ -541,7 +541,7 @@ const App = () => {
                 author: "Sarah Chen",
                 role: "Indie Folk Artist",
                 rating: 5,
-                avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face"
+                avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face"
               },
               {
                 quote: "We filled our Friday slot in 10 minutes with TheGreenRoom.ai's request form. The quality of artists we're getting is incredible.",
