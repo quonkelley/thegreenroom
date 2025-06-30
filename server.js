@@ -228,10 +228,10 @@ app.get('/api/test-connection', async (req, res) => {
       });
     }
 
-    // Test Resend connection
+    // Test Resend connection with a valid test email
     const { data, error } = await resend.emails.send({
       from: 'TheGreenRoom.ai <hello@thegreenroom.ai>',
-      to: ['test@example.com'],
+      to: ['test@resend.dev'],
       subject: 'Test Email',
       html: '<p>This is a test email to verify the connection.</p>',
     });
