@@ -85,7 +85,7 @@ app.post('/api/subscribe', async (req, res) => {
     let emailResult;
     try {
       emailResult = await resend.emails.send({
-        from: 'TheGreenRoom.ai <hello@thegreenroom.ai>',
+        from: 'TheGreenRoom.ai <onboarding@resend.dev>',
         to: [email],
         subject: 'Welcome to TheGreenRoom.ai! 🎵',
         html: `
@@ -230,7 +230,7 @@ app.get('/api/test-connection', async (req, res) => {
 
     // Test Resend connection with a valid test email
     const { data, error } = await resend.emails.send({
-      from: 'TheGreenRoom.ai <hello@thegreenroom.ai>',
+      from: 'TheGreenRoom.ai <onboarding@resend.dev>',
       to: ['test@resend.dev'],
       subject: 'Test Email',
       html: '<p>This is a test email to verify the connection.</p>',
