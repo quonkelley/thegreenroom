@@ -4,7 +4,7 @@ export const validateEmail = (email) => {
   return emailRegex.test(email);
 };
 
-// Subscribe to waitlist using Mailchimp's hosted form
+// Subscribe to waitlist using Resend
 export const subscribeToWaitlist = async (email) => {
   try {
     // Validate email format
@@ -12,31 +12,89 @@ export const subscribeToWaitlist = async (email) => {
       return { success: false, error: 'Invalid email format' };
     }
 
-    // Check if Mailchimp is loaded
-    if (typeof window !== 'undefined' && window.mc) {
-      // Use Mailchimp's hosted form submission
-      const result = await window.mc.subscribe({
-        email: email,
-        // You can add additional fields here if needed
-        // firstName: firstName,
-        // lastName: lastName,
-      });
-      
+    // Send welcome email using Resend
+    const response = await fetch('/api/subscribe', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ 
+        email,
+        source: 'landing-page',
+        timestamp: new Date().toISOString()
+      }),
+    });
+
+    const result = await response.json();
+    
+    if (response.ok) {
+      // Track successful signup
+      trackEmailSignup(email);
       return { success: true, data: result };
     } else {
-      // Fallback: redirect to Mailchimp's hosted form
-      const mailchimpUrl = 'https://thegreenroom.us6.list-manage.com/subscribe/post?u=5b4cae7f234fe3a2488a9050e&id=003255698606a22b5bb5ed509';
-      const formData = new FormData();
-      formData.append('EMAIL', email);
-      
-      const response = await fetch(mailchimpUrl, {
-        method: 'POST',
-        body: formData,
-      });
-      
-      return { success: true, data: response };
+      return { success: false, error: result.error || 'Failed to subscribe' };
     }
+
   } catch (error) {
+    console.error('Subscription error:', error);
+    return { success: false, error: 'Failed to subscribe. Please try again.' };
+  }
+};
+
+// Analytics tracking
+export const trackEmailSignup = (email) => {
+  // Send analytics event
+  fetch('/api/analytics', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      event: 'email_signup',
+      email,
+      timestamp: new Date().toISOString(),
+      user_agent: navigator.userAgent,
+      referrer: document.referrer,
+      page: window.location.pathname
+    }),
+  }).catch(console.error);
+};
+
+// Track page views
+export const trackPageView = (page) => {
+  fetch('/api/analytics', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      event: 'page_view',
+      page,
+      timestamp: new Date().toISOString(),
+      user_agent: navigator.userAgent,
+      referrer: document.referrer
+    }),
+  }).catch(console.error);
+};
+
+// Track button clicks
+export const trackButtonClick = (buttonName) => {
+  fetch('/api/analytics', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      event: 'button_click',
+      button: buttonName,
+      timestamp: new Date().toISOString(),
+      page: window.location.pathname
+    }),
+  }).catch(console.error);
+};
+
+// Test connection function
+export const testEmailConnection = async () => {
+  try {
+    const response = await fetch('/api/test-connection');
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error('Connection test failed:', error);
     return { success: false, error: error.message };
   }
 }; 

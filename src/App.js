@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { motion, useScroll, useTransform, useSpring, useInView } from 'framer-motion';
+import { motion, useScroll, useSpring } from 'framer-motion';
 import { 
   Mic, 
-  Mail, 
+  Mail,
   Calendar, 
   Target, 
   MessageSquare, 
@@ -14,33 +14,22 @@ import {
   Instagram,
   Twitter,
   Linkedin,
-  Loader2,
-  Play,
-  Pause,
-  Volume2,
-  VolumeX,
   ChevronDown,
   Sparkles,
   Zap,
   Heart,
   Users,
-  TrendingUp,
-  ArrowUp,
-  MessageCircle,
-  Phone
+  TrendingUp
 } from 'lucide-react';
-import { subscribeToWaitlist, validateEmail } from './emailService';
+import { testEmailConnection } from './emailService';
+import EmailSignup from './components/EmailSignup';
+import FloatingElements from './components/FloatingElements';
+import FloatingButtons from './components/FloatingButtons';
+import ProgressBar from './components/ProgressBar';
 
 const App = () => {
-  const [email, setEmail] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
-  const [activeFeature, setActiveFeature] = useState(0);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [showScrollTop, setShowScrollTop] = useState(false);
-  const [showContact, setShowContact] = useState(false);
 
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
@@ -58,14 +47,6 @@ const App = () => {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  // Auto-rotate features
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveFeature((prev) => (prev + 1) % 3);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
-
   // Scroll to top visibility
   useEffect(() => {
     const handleScroll = () => {
@@ -79,35 +60,17 @@ const App = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!validateEmail(email)) {
-      setSubmitStatus('error');
-      setTimeout(() => setSubmitStatus(null), 3000);
-      return;
-    }
-
-    setIsSubmitting(true);
-    setSubmitStatus(null);
-
+  // Test connection function
+  const testConnection = async () => {
     try {
-      const result = await subscribeToWaitlist(email);
-      
+      const result = await testEmailConnection();
       if (result.success) {
-        setSubmitStatus('success');
-        setEmail('');
-        setTimeout(() => setSubmitStatus(null), 5000);
+        alert('✅ Connection successful! Email service is working.');
       } else {
-        setSubmitStatus('error');
-        setTimeout(() => setSubmitStatus(null), 3000);
+        alert(`❌ Connection failed: ${result.error}`);
       }
     } catch (error) {
-      console.error('Form submission error:', error);
-      setSubmitStatus('error');
-      setTimeout(() => setSubmitStatus(null), 3000);
-    } finally {
-      setIsSubmitting(false);
+      alert(`❌ Test failed: ${error.message}`);
     }
   };
 
@@ -136,124 +99,20 @@ const App = () => {
     }
   };
 
-  const pulseAnimation = {
-    animate: {
-      scale: [1, 1.05, 1],
-      transition: {
-        duration: 2,
-        repeat: Infinity,
-        ease: "easeInOut"
-      }
-    }
-  };
-
   return (
     <div className="min-h-screen bg-dark-950 relative overflow-hidden">
       {/* Progress Bar */}
-      <motion.div
-        className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary-500 to-accent-purple origin-left z-50"
-        style={{ scaleX }}
-      />
+      <ProgressBar scaleX={scaleX} />
 
-      {/* Interactive Background Elements */}
-      <motion.div 
-        className="fixed inset-0 pointer-events-none"
-        animate={{
-          background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(34, 197, 94, 0.1), transparent 40%)`
-        }}
-        transition={{ type: "spring", stiffness: 150, damping: 15 }}
-      />
-
-      {/* Floating Particles */}
-      {[...Array(6)].map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute w-2 h-2 bg-primary-400 rounded-full opacity-30"
-          style={{
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-          }}
-          animate={{
-            y: [0, -100, 0],
-            opacity: [0.3, 0.8, 0.3],
-            scale: [1, 1.5, 1],
-          }}
-          transition={{
-            duration: 8 + Math.random() * 4,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: Math.random() * 2,
-          }}
-        />
-      ))}
+      {/* Floating Elements */}
+      <FloatingElements mousePosition={mousePosition} />
 
       {/* Floating Action Buttons */}
-      <motion.div
-        className="fixed bottom-6 right-6 z-40 flex flex-col gap-4"
-        initial={{ opacity: 0, x: 100 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 1, duration: 0.6 }}
-      >
-        {/* Contact Button */}
-        <motion.button
-          className="w-14 h-14 bg-gradient-to-br from-primary-500 to-accent-purple rounded-full flex items-center justify-center text-white shadow-lg hover:shadow-xl transition-all duration-300 group"
-          whileHover={{ scale: 1.1, rotate: 5 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => setShowContact(!showContact)}
-        >
-          <MessageCircle className="w-6 h-6 group-hover:scale-110 transition-transform" />
-        </motion.button>
-
-        {/* Scroll to Top Button */}
-        <motion.button
-          className="w-14 h-14 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full flex items-center justify-center text-white shadow-lg hover:shadow-xl transition-all duration-300 group"
-          whileHover={{ scale: 1.1, rotate: -5 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={scrollToTop}
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{ 
-            opacity: showScrollTop ? 1 : 0, 
-            scale: showScrollTop ? 1 : 0 
-          }}
-          transition={{ duration: 0.3 }}
-        >
-          <ArrowUp className="w-6 h-6 group-hover:scale-110 transition-transform" />
-        </motion.button>
-      </motion.div>
-
-      {/* Contact Popup */}
-      <motion.div
-        className="fixed bottom-24 right-6 z-50"
-        initial={{ opacity: 0, scale: 0.8, y: 20 }}
-        animate={{ 
-          opacity: showContact ? 1 : 0, 
-          scale: showContact ? 1 : 0.8,
-          y: showContact ? 0 : 20
-        }}
-        transition={{ duration: 0.3 }}
-      >
-        {showContact && (
-          <div className="bg-dark-800 border border-white/20 rounded-2xl p-6 shadow-2xl backdrop-blur-sm min-w-[280px]">
-            <h3 className="text-lg font-semibold mb-4 text-white">Get in Touch</h3>
-            <div className="space-y-3">
-              <a 
-                href="mailto:hello@thegreenroom.ai" 
-                className="flex items-center gap-3 p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors group"
-              >
-                <Mail className="w-5 h-5 text-primary-400 group-hover:scale-110 transition-transform" />
-                <span className="text-white/90 group-hover:text-white">hello@thegreenroom.ai</span>
-              </a>
-              <a 
-                href="tel:+1234567890" 
-                className="flex items-center gap-3 p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors group"
-              >
-                <Phone className="w-5 h-5 text-primary-400 group-hover:scale-110 transition-transform" />
-                <span className="text-white/90 group-hover:text-white">+1 (234) 567-890</span>
-              </a>
-            </div>
-          </div>
-        )}
-      </motion.div>
+      <FloatingButtons 
+        onTestConnection={testConnection}
+        showScrollTop={showScrollTop}
+        onScrollToTop={scrollToTop}
+      />
 
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
@@ -329,74 +188,16 @@ const App = () => {
               TheGreenRoom.ai helps independent artists and venues book smarter, faster—with zero spreadsheets or stress.
             </motion.p>
 
-            <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-              <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
-                <motion.input
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="input-field flex-1 backdrop-blur-sm bg-white/10 border-white/20"
-                  required
-                  disabled={isSubmitting}
-                  whileFocus={{ scale: 1.02, borderColor: "rgb(34, 197, 94)" }}
-                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                />
-                <motion.button 
-                  type="submit" 
-                  className="btn-primary whitespace-nowrap flex items-center justify-center min-w-[140px] relative overflow-hidden group"
-                  disabled={isSubmitting}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-primary-600 to-accent-purple opacity-0 group-hover:opacity-100 transition-opacity"
-                    initial={false}
-                  />
-                  <span className="relative z-10 flex items-center">
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Joining...
-                    </>
-                  ) : (
-                      <>
-                        Join Early Access
-                        <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                      </>
-                  )}
-                  </span>
-                </motion.button>
-              </form>
+            <motion.div variants={fadeInUp} className="mb-12">
+              <EmailSignup 
+                onSuccess={(result) => {
+                  console.log('Email signup successful:', result);
+                }}
+                onError={(error) => {
+                  console.error('Email signup error:', error);
+                }}
+              />
             </motion.div>
-
-            {/* Enhanced Status Messages */}
-            {submitStatus && (
-              <motion.div
-                initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                className={`mb-6 px-4 py-3 rounded-xl text-sm font-medium backdrop-blur-sm ${
-                  submitStatus === 'success' 
-                    ? 'bg-primary-500/20 border border-primary-500/30 text-primary-300' 
-                    : 'bg-red-500/20 border border-red-500/30 text-red-300'
-                }`}
-              >
-                <div className="flex items-center justify-center">
-                  {submitStatus === 'success' ? (
-                    <>
-                      <CheckCircle className="w-4 h-4 mr-2" />
-                      Welcome to TheGreenRoom.ai! Check your email for confirmation.
-                    </>
-                  ) : (
-                    <>
-                      <Zap className="w-4 h-4 mr-2" />
-                      Please enter a valid email address and try again.
-                    </>
-                  )}
-                </div>
-              </motion.div>
-            )}
 
             <motion.div variants={fadeInUp} className="flex items-center justify-center gap-8 text-white/80">
               <motion.div 
@@ -826,44 +627,16 @@ const App = () => {
               Join our early access list and skip the line when we launch. Plus, get exclusive early adopter benefits.
             </motion.p>
 
-            <motion.form variants={fadeInUp} onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-md mx-auto">
-              <motion.input
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="input-field flex-1"
-                required
-                disabled={isSubmitting}
-                whileFocus={{ scale: 1.02, borderColor: "rgb(34, 197, 94)" }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            <motion.div variants={fadeInUp} className="mb-8">
+              <EmailSignup 
+                onSuccess={(result) => {
+                  console.log('Email signup successful:', result);
+                }}
+                onError={(error) => {
+                  console.error('Email signup error:', error);
+                }}
               />
-              <motion.button 
-                type="submit" 
-                className="btn-primary whitespace-nowrap flex items-center justify-center min-w-[140px] relative overflow-hidden group"
-                disabled={isSubmitting}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-primary-600 to-accent-purple opacity-0 group-hover:opacity-100 transition-opacity"
-                  initial={false}
-                />
-                <span className="relative z-10 flex items-center">
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Joining...
-                  </>
-                ) : (
-                  <>
-                    Join Waitlist
-                      <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                  </>
-                )}
-                </span>
-              </motion.button>
-            </motion.form>
+            </motion.div>
 
             <motion.div variants={fadeInUp} className="mt-8 text-white/60 text-sm">
               <div className="flex items-center justify-center gap-2 mb-2">

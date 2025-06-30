@@ -10,7 +10,7 @@ A stunning, modern SaaS landing page for TheGreenRoom.ai - an AI-powered assista
 - **Modern UI Components** - Glass morphism effects, gradients, and hover states
 - **Professional Sections** - Hero, features, testimonials, and CTA sections
 - **Email Capture** - Functional email signup forms
-- **Mailchimp Integration** - Email signup integration with Mailchimp
+- **Resend Integration** - Email signup integration with Resend
 
 ## 🚀 Quick Start
 
@@ -21,7 +21,7 @@ A stunning, modern SaaS landing page for TheGreenRoom.ai - an AI-powered assista
 
 2. **Start the development server:**
    ```bash
-   npm start
+   npm run dev
    ```
 
 3. **Open your browser:**
@@ -34,7 +34,7 @@ A stunning, modern SaaS landing page for TheGreenRoom.ai - an AI-powered assista
 - **Framer Motion** - Production-ready motion library
 - **Lucide React** - Beautiful icon library
 - **Google Fonts** - Inter & Poppins typography
-- **Mailchimp** - Email collection and signup integration
+- **Resend** - Email collection and signup integration
 
 ## 📱 Sections
 
@@ -72,48 +72,36 @@ The landing page is fully customizable:
 
 This project is open source and available under the [MIT License](LICENSE).
 
-## 📧 Mailchimp Setup
+## 📧 Resend Setup
 
-**Important**: Before the email signup forms work, you need to configure your Mailchimp credentials.
+**Important**: Before the email signup forms work, you need to configure your Resend credentials.
 
-### Step 1: Get Your Mailchimp Credentials
+### Step 1: Get Your Resend API Key
 
-1. **Mailchimp User ID**:
-   - Log into Mailchimp
-   - Go to **Account** → **Account & billing** → **Account**
-   - Copy your **Account ID**
-
-2. **Mailchimp List ID**:
-   - Go to **Audience** → **All contacts**
-   - Click **Settings** → **Audience name and defaults**
-   - Copy your **Audience ID**
-
-3. **Mailchimp Server Prefix**:
-   - Look at your Mailchimp URL (e.g., `https://us1.admin.mailchimp.com/`)
-   - Copy the prefix (e.g., `us1`, `us2`)
+1. Go to [resend.com](https://resend.com) and create an account
+2. Navigate to API Keys in your dashboard
+3. Create a new API key
+4. Copy the API key
 
 ### Step 2: Update Configuration Files
 
-1. **Update `public/index.html`**:
-   Replace the placeholder in the Mailchimp script:
-   ```html
-   <script id="mcjs">!function(c,h,i,m,p){m=c.createElement(h),p=c.getElementsByTagName(h)[0],m.async=1,m.src=i,p.parentNode.insertBefore(m,p)}(document,"script","https://chimpstatic.com/mcjs-connected/js/users/YOUR_MAILCHIMP_USER_ID/YOUR_MAILCHIMP_LIST_ID.js");</script>
-   ```
-
-2. **Update `src/emailService.js`**:
-   Replace the placeholders in the `submitToMailchimp` function:
-   ```javascript
-   form.action = 'https://YOUR_MAILCHIMP_SERVER.list-manage.com/subscribe/post?u=YOUR_MAILCHIMP_USER_ID&id=YOUR_MAILCHIMP_LIST_ID';
+1. **Update `.env`**:
+   Replace the placeholder in the `.env` file:
+   ```env
+   REACT_APP_RESEND_API_KEY=your_resend_api_key_here
+   PORT=3001
+   # React app port
+   # PORT=3000
    ```
 
 ### Step 3: Test Email Signup
 
-1. Build and deploy the site:
+1. Start the dev servers:
 ```bash
-npm run deploy
+npm run dev
 ```
 
-2. Test the email signup forms on your live site
+2. Test the email signup forms on your local site
 
 ## 🚀 Deployed on GitHub Pages
 
@@ -136,13 +124,14 @@ The site will be available at: `https://quonkelley.github.io/thegreenroom/`
 ```
 TheGreenRoom/
 ├── public/
-│   ├── index.html          # Main HTML file with Mailchimp script
+│   ├── index.html          # Main HTML file
 │   └── ...
 ├── src/
 │   ├── App.js              # Main React component
-│   ├── emailService.js     # Mailchimp integration
+│   ├── emailService.js     # Resend integration
 │   ├── index.css           # Tailwind CSS styles
 │   └── index.js            # React entry point
+├── server.js               # Express backend for Resend and analytics
 ├── package.json            # Dependencies and scripts
 └── README.md               # This file
 ```
@@ -159,14 +148,14 @@ TheGreenRoom/
 
 ### Email Integration
 - Modify `src/emailService.js` for different email service providers
-- Update Mailchimp form fields and validation
+- Update form fields and validation as needed
 
 ## 🤔 Troubleshooting
 
 ### Email Forms Not Working
-- Ensure Mailchimp credentials are correctly configured
+- Ensure Resend credentials are correctly configured
 - Check browser console for JavaScript errors
-- Verify Mailchimp list is active and accepting subscribers
+- Verify your Resend account is active and accepting requests
 
 ### Build Errors
 - Clear `node_modules` and reinstall: `rm -rf node_modules && npm install`
@@ -190,7 +179,6 @@ TheGreenRoom/
 
 For questions or issues:
 - Check the troubleshooting section above
-- Review Mailchimp's documentation for email integration
 - Open an issue on GitHub
 
 ---
