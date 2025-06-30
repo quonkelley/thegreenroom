@@ -14,9 +14,6 @@ const getApiBaseUrl = () => {
 
 const API_BASE_URL = getApiBaseUrl();
 
-// Check if we're in development mode
-const isDevelopment = process.env.NODE_ENV === 'development';
-
 // Subscribe to waitlist using Resend
 export const subscribeToWaitlist = async (email) => {
   try {

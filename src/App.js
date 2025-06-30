@@ -8,7 +8,6 @@ import {
   MessageSquare, 
   RotateCcw,
   Star,
-  ArrowRight,
   Music,
   CheckCircle,
   Instagram,
