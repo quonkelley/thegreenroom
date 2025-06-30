@@ -25,10 +25,12 @@ import EmailSignup from './components/EmailSignup';
 import FloatingElements from './components/FloatingElements';
 import FloatingButtons from './components/FloatingButtons';
 import ProgressBar from './components/ProgressBar';
+import AnalyticsDashboard from './components/AnalyticsDashboard';
 
 const App = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
 
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
@@ -226,6 +228,32 @@ const App = () => {
               <ChevronDown className="w-6 h-6 text-white/60" />
             </motion.div>
           </motion.div>
+        </div>
+      </section>
+
+      {/* Analytics Section */}
+      <section className="py-12 bg-dark-900/20">
+        <div className="max-w-6xl mx-auto px-4">
+          {/* Analytics Toggle Button */}
+          <div className="text-center mb-8">
+            <button 
+              onClick={() => setShowAnalytics(!showAnalytics)}
+              className="bg-gradient-to-r from-green-500 to-purple-600 text-white px-8 py-3 rounded-lg hover:opacity-90 transition-opacity font-medium shadow-lg"
+            >
+              {showAnalytics ? '📊 Hide Analytics' : '📊 Show Analytics Dashboard'}
+            </button>
+          </div>
+          
+          {/* Analytics Dashboard */}
+          {showAnalytics && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <AnalyticsDashboard />
+            </motion.div>
+          )}
         </div>
       </section>
 
