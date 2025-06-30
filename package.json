@@ -1,54 +1,33 @@
 {
-  "name": "thegreenroom-ai-landing",
+  "name": "thegreenroom-ai",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "react-scripts start",
-    "server": "node server.js",
-    "dev": "concurrently \"npm run server\" \"npm run start\"",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "vercel-build": "npm run build"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@testing-library/jest-dom": "^5.16.4",
-    "@testing-library/react": "^13.3.0",
-    "@testing-library/user-event": "^13.5.0",
-    "cors": "^2.8.5",
-    "dotenv": "^17.0.0",
-    "express": "^5.1.0",
-    "framer-motion": "^10.16.4",
-    "lucide-react": "^0.292.0",
+    "next": "^14.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-scripts": "5.0.1",
+    "framer-motion": "^10.16.4",
+    "lucide-react": "^0.292.0",
+    "@supabase/supabase-js": "^2.38.0",
+    "openai": "^4.20.0",
     "resend": "^4.6.0",
-    "web-vitals": "^2.1.4"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "tailwindcss": "^3.3.0",
+    "autoprefixer": "^10.4.14",
+    "postcss": "^8.4.24"
   },
   "devDependencies": {
-    "autoprefixer": "^10.4.14",
-    "concurrently": "^9.2.0",
-    "gh-pages": "^6.3.0",
-    "postcss": "^8.4.24",
-    "tailwindcss": "^3.3.0"
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "typescript": "^5.0.0",
+    "eslint": "^8.0.0",
+    "eslint-config-next": "^14.0.0"
   }
 }
