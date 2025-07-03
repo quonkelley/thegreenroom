@@ -1,7 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { FloatingElementsProps } from '../types';
 
-const FloatingElements = ({ mousePosition }) => {
+const FloatingElements: React.FC<FloatingElementsProps> = ({ mousePosition }) => {
   return (
     <>
       {/* Interactive Background Elements */}

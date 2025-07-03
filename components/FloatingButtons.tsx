@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Zap, MessageCircle, ArrowUp, Mail, Phone } from 'lucide-react';
+import { FloatingButtonsProps } from '../types';
 
-const FloatingButtons = ({ onTestConnection, showScrollTop, onScrollToTop }) => {
+const FloatingButtons: React.FC<FloatingButtonsProps> = ({ 
+  onTestConnection, 
+  showScrollTop, 
+  onScrollToTop 
+}) => {
   const [showContact, setShowContact] = useState(false);
 
   return (

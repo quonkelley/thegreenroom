@@ -2,28 +2,18 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { subscribeToWaitlist, validateEmail } from '../lib/emailService';
+import { EmailSignupResult, EmailSignupProps } from '../types';
 
-/**
- * @typedef {Object} EmailSignupResult
- * @property {boolean} success
- * @property {any} [data]
- * @property {string} [error]
- */
-/**
- * @typedef {string} EmailSignupError
- */
-/**
- * @param {Object} props
- * @param {string} [props.className]
- * @param {(result: EmailSignupResult) => void} [props.onSuccess]
- * @param {(error: EmailSignupError) => void} [props.onError]
- */
-const EmailSignup = ({ className = '', onSuccess, onError }) => {
+const EmailSignup: React.FC<EmailSignupProps> = ({ 
+  className = '', 
+  onSuccess, 
+  onError 
+}) => {
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState(null);
+  const [submitStatus, setSubmitStatus] = useState<'success' | 'error' | null>(null);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!validateEmail(email)) {
@@ -49,7 +39,7 @@ const EmailSignup = ({ className = '', onSuccess, onError }) => {
         setTimeout(() => setSubmitStatus(null), 3000);
         onError?.(result.error || 'Subscription failed');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Form submission error:', error);
       setSubmitStatus('error');
       setTimeout(() => setSubmitStatus(null), 3000);

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { AnalyticsStats } from '../types';
 
-const AnalyticsDashboard = () => {
-  const [stats, setStats] = useState({
+const AnalyticsDashboard: React.FC = () => {
+  const [stats, setStats] = useState<AnalyticsStats>({
     totalSignups: 0,
     todaySignups: 0,
     conversionRate: 0,
