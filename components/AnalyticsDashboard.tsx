@@ -337,12 +337,48 @@ const AnalyticsDashboard: React.FC = () => {
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Positive Responses</p>
-                  <p className="text-2xl font-bold text-gray-900">{data.overview.positiveResponses || 0}</p>
-                  <p className="text-sm text-gray-500">Success rate</p>
+                  <p className="text-sm font-medium text-gray-600">Open Rate</p>
+                  <p className="text-2xl font-bold text-gray-900">{data.overview.openRate || 0}%</p>
+                  <p className="text-sm text-gray-500">Emails opened</p>
                 </div>
                 <div className="p-3 bg-yellow-100 rounded-lg">
-                  <Award className="w-6 h-6 text-yellow-600" />
+                  <Eye className="w-6 h-6 text-yellow-600" />
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="bg-white rounded-xl shadow-lg p-6 border border-gray-100"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Successful Bookings</p>
+                  <p className="text-2xl font-bold text-gray-900">{data.overview.successfulBookings || 0}</p>
+                  <p className="text-sm text-gray-500">{data.overview.bookingConversionRate || 0}% conversion</p>
+                </div>
+                <div className="p-3 bg-green-100 rounded-lg">
+                  <Award className="w-6 h-6 text-green-600" />
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              className="bg-white rounded-xl shadow-lg p-6 border border-gray-100"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Venues Viewed</p>
+                  <p className="text-2xl font-bold text-gray-900">{data.overview.venuesViewed || 0}</p>
+                  <p className="text-sm text-gray-500">{data.overview.citiesExplored || 0} cities</p>
+                </div>
+                <div className="p-3 bg-purple-100 rounded-lg">
+                  <Target className="w-6 h-6 text-purple-600" />
                 </div>
               </div>
             </motion.div>

@@ -112,6 +112,18 @@ export default function VenueDiscovery() {
       
       if (response.ok) {
         setVenues(data.venues || []);
+        
+        // Track venue discovery analytics
+        trackVenueDiscovery('venue_search', {
+          search_terms: searchTerm,
+          filters: {
+            city: selectedCity,
+            genres: selectedGenres,
+            venue_type: selectedVenueType,
+            capacity_range: capacityRange
+          },
+          results_count: data.venues?.length || 0
+        });
       } else {
         console.error('Failed to fetch venues:', data.error);
       }
@@ -119,6 +131,21 @@ export default function VenueDiscovery() {
       console.error('Error fetching venues:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const trackVenueDiscovery = async (eventType: string, metadata: any) => {
+    try {
+      await fetch('/api/track-venue-discovery', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event_type: eventType,
+          metadata
+        })
+      });
+    } catch (error) {
+      console.error('Failed to track venue discovery:', error);
     }
   };
 

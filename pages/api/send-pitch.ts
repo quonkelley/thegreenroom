@@ -136,6 +136,30 @@ export default async function handler(
       });
     }
 
+    // Track email event for analytics
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/track-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event: 'email_sent',
+          emailId: data?.id,
+          artistId: req.body.artistId || 'unknown',
+          venueName,
+          venueEmail: to,
+          subject,
+          status: 'sent',
+          metadata: {
+            messageId: data?.id,
+            artistName,
+            artistEmail
+          }
+        })
+      });
+    } catch (trackingError) {
+      console.error('Failed to track email event:', trackingError);
+    }
+
     // Log successful send for analytics
     console.log('Email sent successfully:', {
       to,
