@@ -1,11 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  images: {
-    domains: ['images.unsplash.com'],
+  reactStrictMode: true,
+  swcMinify: true,
+  experimental: {
+    appDir: true,
   },
-  env: {
-    CUSTOM_KEY: process.env.CUSTOM_KEY,
-  },
-}
+};
 
-module.exports = nextConfig 
+module.exports = nextConfig; 

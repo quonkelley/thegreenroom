@@ -8,7 +8,13 @@
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
-    "test": "jest"
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:openai": "ts-node test-openai.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.38.0",
@@ -25,9 +31,12 @@
     "tailwindcss": "^3.3.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.28.0",
+    "@playwright/test": "^1.53.2",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
+    "@types/jest": "^30.0.0",
     "@types/node": "^20.0.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
@@ -39,6 +48,7 @@
     "msw": "^2.10.2",
     "node-mocks-http": "^1.17.2",
     "ts-jest": "^29.4.0",
+    "ts-node": "^10.9.2",
     "typescript": "^5.0.0"
   }
 }
