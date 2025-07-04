@@ -121,6 +121,72 @@ export interface AnalyticsStats {
   emailServiceAvailable: boolean;
 }
 
+// Enhanced Analytics Types
+export interface UserAnalytics {
+  profile: {
+    name: string;
+    genre: string;
+    city: string;
+    memberSince: string;
+  };
+  overview: {
+    totalPitches: number;
+    recentPitches: number;
+    totalCampaigns: number;
+    activeCampaigns: number;
+    totalEmails: number;
+    sentEmails: number;
+    openedEmails: number;
+    repliedEmails: number;
+    responseRate: number;
+    positiveResponses: number;
+    negativeResponses: number;
+  };
+  performance: {
+    dailyStats: DailyStats[];
+    trends: {
+      sent: number[];
+      opened: number[];
+      replied: number[];
+    };
+    averages: {
+      dailySent: number;
+      dailyOpened: number;
+      dailyReplied: number;
+    };
+  };
+  goals: {
+    pitches: GoalProgress;
+    emails: GoalProgress;
+    responseRate: GoalProgress;
+    bookings: GoalProgress;
+  };
+  recentActivity: OutreachEmail[];
+  timeframe: string;
+}
+
+export interface DailyStats {
+  date: string;
+  sent: number;
+  opened: number;
+  replied: number;
+  positive: number;
+  negative: number;
+}
+
+export interface GoalProgress {
+  current: number;
+  goal: number;
+  progress: number;
+  status: 'completed' | 'in_progress';
+}
+
+export interface AnalyticsEvent {
+  event: string;
+  timestamp: string;
+  [key: string]: any;
+}
+
 // Outreach Log Types
 export interface OutreachLog {
   id: string;

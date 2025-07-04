@@ -18,6 +18,7 @@ export default function AppNavigation() {
     { name: 'Profile', href: '/app/profile', icon: User },
     { name: 'Pitch Generator', href: '/app/pitch', icon: Mail },
     { name: 'Outreach Tracker', href: '/app/outreach', icon: BarChart3 },
+    { name: 'Analytics', href: '/app/analytics', icon: TrendingUp },
   ];
 
   const handleSignOut = async () => {

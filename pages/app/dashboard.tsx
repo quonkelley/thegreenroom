@@ -283,15 +283,18 @@ export default function Dashboard() {
                     </div>
                   </Link>
                   
-                  <div className="group p-4 border border-gray-200 rounded-lg bg-gray-50">
+                  <Link 
+                    href="/app/analytics"
+                    className="group p-4 border border-gray-200 rounded-lg hover:border-orange-300 hover:bg-orange-50 transition-colors"
+                  >
                     <div className="flex items-center gap-3">
                       <div className="text-2xl">📈</div>
                       <div>
-                        <h3 className="font-semibold text-gray-500">Analytics</h3>
-                        <p className="text-sm text-gray-500">Coming soon</p>
+                        <h3 className="font-semibold text-gray-900 group-hover:text-orange-700">Analytics</h3>
+                        <p className="text-sm text-gray-600">Track your performance</p>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 </div>
               </div>
 
