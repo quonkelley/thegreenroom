@@ -28,7 +28,7 @@ export default async function handler(
       const { user_id, timeframe = '30d' } = req.query;
       
       if (!user_id) {
-        // Return basic waitlist stats for public analytics
+        // Return basic waitlist stats for public analytics (landing page)
         const totalSignups = analytics.filter(a => a.event === 'email_signup').length;
         const today = new Date().toDateString();
         const todaySignups = analytics.filter(a => 

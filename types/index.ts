@@ -1,7 +1,7 @@
 // User and Authentication Types
 export interface User {
   id: string;
-  email: string;
+  email?: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -32,7 +32,7 @@ export interface ArtistProfile {
   city: string;
   state?: string;
   country?: string;
-  email: string;
+  email?: string;
   phone?: string;
   website?: string;
   bio?: string;
@@ -51,7 +51,7 @@ export interface ArtistProfileFormData {
   city: string;
   state?: string;
   country?: string;
-  email: string;
+  email?: string;
   phone?: string;
   website?: string;
   bio?: string;
@@ -192,7 +192,7 @@ export interface OutreachLog {
   id: string;
   artist_id: string;
   venue_name: string;
-  venue_email: string;
+  venue_email?: string;
   pitch_id?: string;
   status: 'sent' | 'opened' | 'replied' | 'booked' | 'declined';
   sent_at: string;
@@ -223,7 +223,7 @@ export interface FloatingElementsProps {
 }
 
 export interface ProgressBarProps {
-  scaleX: number;
+  scaleX: any;
 }
 
 // Form Validation Types

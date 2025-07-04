@@ -8,7 +8,7 @@ export default async function handler(
   if (req.method === 'POST') {
     // Create or update a pitch
     try {
-      const { artist_id, subject, body } = req.body;
+      const { artist_id, subject, body, venue_type, venue_name, venue_city } = req.body;
 
       if (!artist_id || !subject || !body) {
         return res.status(400).json({ error: 'artist_id, subject, and body are required' });
@@ -30,7 +30,14 @@ export default async function handler(
         // Update existing pitch
         const { data, error } = await supabase
           .from('pitches')
-          .update({ subject, body, updated_at: new Date().toISOString() })
+          .update({ 
+            subject, 
+            body, 
+            venue_type,
+            venue_name,
+            venue_city,
+            updated_at: new Date().toISOString() 
+          })
           .eq('artist_id', artist_id)
           .select()
           .single();
@@ -41,7 +48,14 @@ export default async function handler(
         // Create new pitch
         const { data, error } = await supabase
           .from('pitches')
-          .insert([{ artist_id, subject, body }])
+          .insert([{ 
+            artist_id, 
+            subject, 
+            body,
+            venue_type,
+            venue_name,
+            venue_city
+          }])
           .select()
           .single();
         

@@ -21,14 +21,12 @@ import {
   TrendingUp
 } from 'lucide-react';
 import { testEmailConnection } from '../lib/emailService';
-import EmailSignup from '../components/EmailSignup';
 import FloatingElements from '../components/FloatingElements';
 import FloatingButtons from '../components/FloatingButtons';
 import ProgressBar from '../components/ProgressBar';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
-import type { EmailSignupResult, EmailSignupError } from '../types/email';
 
-export default function Home() {
+function Home() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
@@ -192,14 +190,7 @@ export default function Home() {
             </motion.p>
 
             <motion.div variants={fadeInUp} transition={{ duration: 0.6 }} className="mb-12">
-              <EmailSignup 
-                onSuccess={(result: EmailSignupResult) => {
-                  console.log('Email signup successful:', result);
-                }}
-                onError={(error: EmailSignupError) => {
-                  console.error('Email signup error:', error);
-                }}
-              />
+              
             </motion.div>
 
             <motion.div variants={fadeInUp} transition={{ duration: 0.6 }} className="flex items-center justify-center gap-8 text-white/80">
@@ -521,4 +512,6 @@ export default function Home() {
       </footer>
     </div>
   );
-} 
+}
+
+export default Home;

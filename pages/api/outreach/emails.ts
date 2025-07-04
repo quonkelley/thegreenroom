@@ -98,7 +98,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             to: [venue_email],
             subject,
             html: body.replace(/\n/g, '<br>'),
-            reply_to: 'noreply@thegreenroom.ai'
+            replyTo: 'noreply@thegreenroom.ai'
           });
         } catch (emailError) {
           console.error('Email sending error:', emailError);
@@ -166,7 +166,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             to: [email.venue_email],
             subject: email.subject,
             html: email.body.replace(/\n/g, '<br>'),
-            reply_to: 'noreply@thegreenroom.ai'
+            replyTo: 'noreply@thegreenroom.ai'
           });
         } catch (emailError) {
           console.error('Email sending error:', emailError);
