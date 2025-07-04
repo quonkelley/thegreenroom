@@ -24,6 +24,22 @@ import {
   Sparkles
 } from 'lucide-react';
 
+// Add custom styles for venue discovery page
+const venuePageStyles = `
+  .venue-page * {
+    color: inherit !important;
+  }
+  .venue-page input,
+  .venue-page select,
+  .venue-page button {
+    color: #111827 !important;
+    background-color: white !important;
+  }
+  .venue-page input::placeholder {
+    color: #6B7280 !important;
+  }
+`;
+
 interface Venue {
   id: string;
   name: string;
@@ -169,7 +185,8 @@ export default function VenueDiscovery() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 text-gray-900 venue-page">
+        <style jsx global>{venuePageStyles}</style>
         <AppNavigation />
         <div className="max-w-7xl mx-auto py-8 px-4">
           {/* Header */}
@@ -191,7 +208,7 @@ export default function VenueDiscovery() {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-900 placeholder-gray-500 bg-white"
                   />
                 </div>
                 <button
@@ -202,7 +219,7 @@ export default function VenueDiscovery() {
                 </button>
                 <button
                   onClick={() => setShowFilters(!showFilters)}
-                  className="px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+                  className="px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 text-gray-700 bg-white"
                 >
                   <Filter className="w-4 h-4" />
                   Filters
@@ -242,7 +259,7 @@ export default function VenueDiscovery() {
                       <select
                         value={selectedCity}
                         onChange={(e) => setSelectedCity(e.target.value)}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-900 bg-white"
                       >
                         <option value="">All Cities</option>
                         {cities.map(city => (
@@ -263,7 +280,7 @@ export default function VenueDiscovery() {
                           max="2000"
                           value={capacityRange[0]}
                           onChange={(e) => setCapacityRange([parseInt(e.target.value), capacityRange[1]])}
-                          className="flex-1"
+                          className="flex-1 accent-blue-600"
                         />
                         <input
                           type="range"
@@ -271,7 +288,7 @@ export default function VenueDiscovery() {
                           max="2000"
                           value={capacityRange[1]}
                           onChange={(e) => setCapacityRange([capacityRange[0], parseInt(e.target.value)])}
-                          className="flex-1"
+                          className="flex-1 accent-blue-600"
                         />
                       </div>
                     </div>
