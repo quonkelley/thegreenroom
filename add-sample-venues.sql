@@ -39,12 +39,12 @@ INSERT INTO venues (name, city, state, country, email, website, phone, capacity,
 ('The Ark', 'Ann Arbor', 'MI', 'USA', 'info@theark.org', 'https://theark.org', '+1-734-761-1451', 400, ARRAY['folk', 'americana', 'acoustic'], 'Marianne James', 'booking@theark.org', 'Non-profit folk music venue', 'active'),
 
 -- Blues Venues
-('Buddy Guy\'s Legends', 'Chicago', 'IL', 'USA', 'info@buddyguy.com', 'https://buddyguy.com', '+1-312-427-0333', 300, ARRAY['blues', 'jazz', 'soul'], 'Buddy Guy', 'booking@buddyguy.com', 'Blues club owned by Buddy Guy', 'active'),
+('Buddy Guy''s Legends', 'Chicago', 'IL', 'USA', 'info@buddyguy.com', 'https://buddyguy.com', '+1-312-427-0333', 300, ARRAY['blues', 'jazz', 'soul'], 'Buddy Guy', 'booking@buddyguy.com', 'Blues club owned by Buddy Guy', 'active'),
 ('Kingston Mines', 'Chicago', 'IL', 'USA', 'info@kingstonmines.com', 'https://kingstonmines.com', '+1-773-477-4646', 200, ARRAY['blues', 'jazz'], 'Linda Clifford', 'booking@kingstonmines.com', 'Chicago blues venue since 1968', 'active'),
 
 -- Alternative & Indie
 ('The Bowery Ballroom', 'New York', 'NY', 'USA', 'info@boweryballroom.com', 'https://boweryballroom.com', '+1-212-533-2111', 575, ARRAY['indie', 'rock', 'alternative'], 'John Moore', 'booking@boweryballroom.com', 'Indie rock venue in Lower Manhattan', 'active'),
-('Terminal 5', 'New York', 'NY', 'USA', 'info@terminal5nyc.com', 'https://terminal5nyc.com', '+1-212-582-6600', 3000, ARRAY['indie', 'rock', 'electronic'], 'John Moore', 'booking@terminal5nyc.com', 'Large venue in Hell\'s Kitchen', 'active'),
+('Terminal 5', 'New York', 'NY', 'USA', 'info@terminal5nyc.com', 'https://terminal5nyc.com', '+1-212-582-6600', 3000, ARRAY['indie', 'rock', 'electronic'], 'John Moore', 'booking@terminal5nyc.com', 'Large venue in Hell''s Kitchen', 'active'),
 
 -- Country & Americana
 ('The Bluebird Cafe', 'Nashville', 'TN', 'USA', 'info@bluebirdcafe.com', 'https://bluebirdcafe.com', '+1-615-383-1461', 90, ARRAY['country', 'folk', 'americana'], 'Erika Wollam Nichols', 'booking@bluebirdcafe.com', 'Intimate songwriter venue', 'active'),
@@ -52,7 +52,7 @@ INSERT INTO venues (name, city, state, country, email, website, phone, capacity,
 
 -- Jazz & Blues (More Cities)
 ('The Green Mill', 'Chicago', 'IL', 'USA', 'info@greenmilljazz.com', 'https://greenmilljazz.com', '+1-773-878-5552', 120, ARRAY['jazz', 'blues'], 'Dave Jemilo', 'booking@greenmilljazz.com', 'Historic jazz club in Uptown', 'active'),
-('Andy\'s Jazz Club', 'Chicago', 'IL', 'USA', 'info@andysjazzclub.com', 'https://andysjazzclub.com', '+1-312-642-6805', 150, ARRAY['jazz', 'blues'], 'Andy\'s Management', 'booking@andysjazzclub.com', 'Jazz club in River North', 'active'),
+('Andy''s Jazz Club', 'Chicago', 'IL', 'USA', 'info@andysjazzclub.com', 'https://andysjazzclub.com', '+1-312-642-6805', 150, ARRAY['jazz', 'blues'], 'Andy''s Management', 'booking@andysjazzclub.com', 'Jazz club in River North', 'active'),
 
 -- Rock & Alternative (More Cities)
 ('The Middle East', 'Cambridge', 'MA', 'USA', 'info@mideastclub.com', 'https://mideastclub.com', '+1-617-864-3278', 575, ARRAY['rock', 'indie', 'alternative'], 'Joseph Sater', 'booking@mideastclub.com', 'Rock venue in Cambridge', 'active'),
