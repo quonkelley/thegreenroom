@@ -6,7 +6,8 @@ import {
   Mail, 
   BarChart3, 
   LogOut,
-  Home
+  Home,
+  TrendingUp
 } from 'lucide-react';
 
 export default function AppNavigation() {
