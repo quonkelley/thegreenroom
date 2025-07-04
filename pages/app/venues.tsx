@@ -454,7 +454,13 @@ export default function VenueDiscovery() {
                           onClick={(e) => {
                             e.stopPropagation();
                             // Navigate to pitch generator with venue pre-filled
-                            window.location.href = `/app/pitch?venue=${encodeURIComponent(venue.name)}&city=${encodeURIComponent(venue.city)}&email=${encodeURIComponent(venue.booking_email || '')}`;
+                            const params = new URLSearchParams({
+                              venue: venue.name,
+                              city: venue.city,
+                              email: venue.booking_email || '',
+                              venueType: venue.venue_type || ''
+                            });
+                            window.location.href = `/app/pitch?${params.toString()}`;
                           }}
                           className="flex-1 bg-blue-600 text-white py-2 px-3 rounded-lg text-sm hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
                         >

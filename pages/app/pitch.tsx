@@ -20,8 +20,12 @@ import {
   TrendingUp,
   MessageSquare,
   Calendar,
-  MapPin
+  MapPin,
+  Mail,
+  Clock,
+  X
 } from 'lucide-react';
+import { EMAIL_TEMPLATES, getTemplatesByVenueType, replaceTemplateVariables } from '../../lib/emailTemplates';
 
 interface Pitch {
   id: string;
@@ -195,6 +199,13 @@ export default function PitchGenerator() {
   const [showTemplateLibrary, setShowTemplateLibrary] = useState(false);
   const [showPitchHistory, setShowPitchHistory] = useState(false);
   const [activeTab, setActiveTab] = useState('generator');
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [emailRecipient, setEmailRecipient] = useState('');
+  const [emailSubject, setEmailSubject] = useState('');
+  const [emailContent, setEmailContent] = useState('');
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [emailSuccess, setEmailSuccess] = useState('');
+  const [emailError, setEmailError] = useState('');
 
   // Fetch user's profile on component mount
   useEffect(() => {
@@ -218,12 +229,15 @@ export default function PitchGenerator() {
       const venueName = urlParams.get('venue');
       const venueCity = urlParams.get('city');
       const venueEmail = urlParams.get('email');
+      const venueType = urlParams.get('venueType');
       
       if (venueName) setVenueName(venueName);
       if (venueCity) setVenueCity(venueCity);
+      if (venueEmail) setEmailRecipient(venueEmail);
+      if (venueType) setSelectedVenueType(venueType);
       
-      // Auto-select venue type based on venue name or city
-      if (venueName || venueCity) {
+      // Auto-select venue type based on venue name or city if not provided
+      if (!venueType && (venueName || venueCity)) {
         const searchTerm = (venueName + ' ' + venueCity).toLowerCase();
         if (searchTerm.includes('jazz') || searchTerm.includes('blue')) {
           setSelectedVenueType('jazz-club');
@@ -426,6 +440,115 @@ export default function PitchGenerator() {
     navigator.clipboard.writeText(text);
     setSuccess('Copied to clipboard!');
     setTimeout(() => setSuccess(''), 2000);
+  };
+
+  const openEmailModal = () => {
+    if (!venueName || !emailRecipient) {
+      setError('Please fill in venue name and recipient email');
+      return;
+    }
+    
+    // Prepare email content with template variables
+    const variables = {
+      artistName: profile?.name || '',
+      venueName: venueName,
+      venueCity: venueCity,
+      genre: profile?.genre || '',
+      city: profile?.city || '',
+      website: profile?.website || '',
+      social_links_text: profile?.social_links ? Object.values(profile.social_links).join(', ') : '',
+      website_text: profile?.website ? `Website: ${profile.website}` : '',
+      location: profile?.city || '',
+      influences: 'various artists',
+      experience: '5',
+      audienceSize: '100-150',
+      availability: 'weekends and weekdays',
+      energy: 'high',
+      setLength: '45-60',
+      highlights: 'energetic performances and crowd engagement',
+      bookingPeriod: 'the next few months',
+      phone: profile?.social_links?.phone || ''
+    };
+
+    setEmailSubject(replaceTemplateVariables(subject, variables));
+    setEmailContent(replaceTemplateVariables(body, variables));
+    setShowEmailModal(true);
+  };
+
+  const sendEmail = async () => {
+    if (!emailRecipient || !emailSubject || !emailContent) {
+      setEmailError('Please fill in all required fields');
+      return;
+    }
+
+    setSendingEmail(true);
+    setEmailError('');
+    setEmailSuccess('');
+
+    try {
+      const response = await fetch('/api/send-pitch', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          to: emailRecipient,
+          subject: emailSubject,
+          content: emailContent,
+          venueName: venueName,
+          artistName: profile?.name,
+          artistEmail: user?.email,
+          venueEmail: emailRecipient
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setEmailSuccess('Email sent successfully!');
+        setShowEmailModal(false);
+        
+        // Save the pitch to history
+        await savePitch();
+        
+        // Clear form
+        setEmailRecipient('');
+        setEmailSubject('');
+        setEmailContent('');
+      } else {
+        setEmailError(data.error || 'Failed to send email');
+      }
+    } catch (error) {
+      setEmailError('Network error. Please try again.');
+    } finally {
+      setSendingEmail(false);
+    }
+  };
+
+  const applyEmailTemplate = (template: any) => {
+    const variables = {
+      artistName: profile?.name || '',
+      venueName: venueName,
+      venueCity: venueCity,
+      genre: profile?.genre || '',
+      city: profile?.city || '',
+      website: profile?.website || '',
+      social_links_text: profile?.social_links ? Object.values(profile.social_links).join(', ') : '',
+      website_text: profile?.website ? `Website: ${profile.website}` : '',
+      location: profile?.city || '',
+      influences: 'various artists',
+      experience: '5',
+      audienceSize: '100-150',
+      availability: 'weekends and weekdays',
+      energy: 'high',
+      setLength: '45-60',
+      highlights: 'energetic performances and crowd engagement',
+      bookingPeriod: 'the next few months',
+      phone: profile?.social_links?.phone || ''
+    };
+
+    setEmailSubject(replaceTemplateVariables(template.subject, variables));
+    setEmailContent(replaceTemplateVariables(template.content, variables));
   };
 
   if (profileLoading) {
@@ -647,6 +770,18 @@ export default function PitchGenerator() {
                         />
                       </div>
                       
+                      {/* Email Recipient */}
+                      <div className="mb-6">
+                        <label className="block mb-2 font-medium text-gray-700">Venue Email</label>
+                        <input
+                          className="w-full border border-gray-300 rounded px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                          placeholder="venue@example.com"
+                          value={emailRecipient}
+                          onChange={e => setEmailRecipient(e.target.value)}
+                          disabled={loading || saving}
+                        />
+                      </div>
+
                       {/* Action Buttons */}
                       <div className="flex gap-3">
                         <button
@@ -664,6 +799,14 @@ export default function PitchGenerator() {
                         >
                           {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                           {saving ? 'Saving...' : 'Save Pitch'}
+                        </button>
+                        <button
+                          onClick={openEmailModal}
+                          disabled={!subject.trim() || !body.trim() || !emailRecipient.trim()}
+                          className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        >
+                          <Mail className="w-4 h-4" />
+                          Send Email
                         </button>
                         <button
                           onClick={() => copyToClipboard(`${subject}\n\n${body}`)}
@@ -766,6 +909,110 @@ export default function PitchGenerator() {
             </div>
           </div>
         </div>
+
+        {/* Email Modal */}
+        {showEmailModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            >
+              <div className="p-6 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-bold text-gray-900">Send Pitch Email</h2>
+                  <button
+                    onClick={() => setShowEmailModal(false)}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-6">
+                {emailSuccess && (
+                  <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <p className="text-green-800">{emailSuccess}</p>
+                  </div>
+                )}
+                
+                {emailError && (
+                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-red-800">{emailError}</p>
+                  </div>
+                )}
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">To</label>
+                    <input
+                      type="email"
+                      value={emailRecipient}
+                      onChange={(e) => setEmailRecipient(e.target.value)}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                      placeholder="venue@example.com"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Subject</label>
+                    <input
+                      type="text"
+                      value={emailSubject}
+                      onChange={(e) => setEmailSubject(e.target.value)}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Message</label>
+                    <textarea
+                      value={emailContent}
+                      onChange={(e) => setEmailContent(e.target.value)}
+                      rows={12}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  {/* Email Templates */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Quick Templates</label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      {getTemplatesByVenueType(selectedVenueType || 'all').slice(0, 4).map((template) => (
+                        <button
+                          key={template.id}
+                          onClick={() => applyEmailTemplate(template)}
+                          className="text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                        >
+                          <div className="font-medium text-sm text-gray-900">{template.name}</div>
+                          <div className="text-xs text-gray-500">{template.description}</div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 mt-6">
+                  <button
+                    onClick={sendEmail}
+                    disabled={sendingEmail || !emailRecipient || !emailSubject || !emailContent}
+                    className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {sendingEmail ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                    {sendingEmail ? 'Sending...' : 'Send Email'}
+                  </button>
+                  <button
+                    onClick={() => setShowEmailModal(false)}
+                    className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
       </div>
     </ProtectedRoute>
   );
