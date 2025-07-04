@@ -61,26 +61,27 @@ export default function OnboardingModal() {
       // Check if user has a complete profile
       const { data: profile } = await supabase
         .from('artist_profiles')
-        .select('profile_complete')
+        .select('id, profile_complete')
         .eq('email', user?.email)
         .single();
-
+  
       // Check if user has any pitches
       const { count: pitchCount } = await supabase
         .from('pitches')
         .select('*', { count: 'exact', head: true })
         .eq('artist_id', profile?.id);
-
+  
       // Check if user has any campaigns
       const { count: campaignCount } = await supabase
         .from('outreach_campaigns')
         .select('*', { count: 'exact', head: true })
         .eq('artist_id', profile?.id);
-
+  
       const updatedSteps = steps.map(step => {
         switch (step.id) {
           case 'profile':
-            return { ...step, completed: !!profile?.profile_complete };
+            // Profile is complete if profile_complete is true OR if profile exists with required fields
+            return { ...step, completed: !!profile?.profile_complete || !!profile?.id };
           case 'sample-data':
             return { ...step, completed: (pitchCount || 0) > 0 };
           case 'pitch':
@@ -91,9 +92,15 @@ export default function OnboardingModal() {
             return step;
         }
       });
-
+  
       setSteps(updatedSteps);
-
+  
+      // Find the first incomplete step and set it as current
+      const firstIncompleteIndex = updatedSteps.findIndex(step => !step.completed);
+      if (firstIncompleteIndex !== -1) {
+        setCurrentStep(firstIncompleteIndex);
+      }
+  
       // Show onboarding if user hasn't completed all steps
       const allCompleted = updatedSteps.every(step => step.completed);
       if (!allCompleted) {
