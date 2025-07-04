@@ -44,7 +44,7 @@ export default async function handler(
         response_type: responseType,
         metadata: metadata || {},
         created_at: new Date().toISOString()
-      });
+      }) as { data: Array<{ id: string }> | null, error: any };
 
     if (error) {
       console.error('Email tracking error:', error);

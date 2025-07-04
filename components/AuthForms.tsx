@@ -130,17 +130,17 @@ export function SignUpForm() {
     }
 
     try {
-      console.log('Attempting signup with:', { email, name }); // Debug log
+      // Attempting signup
       const { error } = await signUp(email, password, { name });
       
       if (error) {
-        console.error('Signup error:', error); // Debug log
+        // Signup error
         setError(error.message || 'Failed to create account');
       } else {
         setError('Check your email for a confirmation link!');
       }
-    } catch (err) {
-      console.error('Signup exception:', err); // Debug log
+          } catch (err) {
+        // Signup exception
       setError('An unexpected error occurred. Please try again.');
     }
     

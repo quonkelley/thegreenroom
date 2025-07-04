@@ -309,6 +309,7 @@ export interface Venue {
   status: 'active' | 'inactive' | 'verified';
   created_at: string;
   updated_at: string;
+  venue_type?: string;
 }
 
 export interface OutreachStats {

@@ -29,8 +29,14 @@ interface AnalyticsData {
     openedEmails?: number;
     repliedEmails?: number;
     responseRate?: number;
+    openRate?: number;
     positiveResponses?: number;
     negativeResponses?: number;
+    successfulBookings?: number;
+    bookingConversionRate?: number;
+    totalRevenue?: number;
+    venuesViewed?: number;
+    citiesExplored?: number;
     // Public analytics fields
     totalSignups?: number;
     todaySignups?: number;
@@ -45,6 +51,7 @@ interface AnalyticsData {
       replied: number;
       positive: number;
       negative: number;
+      venuesViewed?: number;
     }>;
     trends: {
       sent: number[];
@@ -98,6 +105,36 @@ const AnalyticsDashboard: React.FC = () => {
       setData(analyticsData);
     } catch (error) {
       console.error('Failed to fetch analytics:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const createSampleData = async () => {
+    if (!user?.id) return;
+    
+    try {
+      setLoading(true);
+      const response = await fetch('/api/onboarding/sample-analytics-data', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ user_id: user.id }),
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        // Refresh analytics data after creating sample data
+        await fetchAnalytics();
+        alert('Sample analytics data created successfully!');
+      } else {
+        alert('Failed to create sample data: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Failed to create sample data:', error);
+      alert('Failed to create sample data');
     } finally {
       setLoading(false);
     }
@@ -188,6 +225,12 @@ const AnalyticsDashboard: React.FC = () => {
               className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg transition-colors"
             >
               <RefreshCw className="w-4 h-4" />
+            </button>
+            <button
+              onClick={createSampleData}
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors text-sm"
+            >
+              Add Sample Data
             </button>
           </div>
         )}
@@ -373,15 +416,35 @@ const AnalyticsDashboard: React.FC = () => {
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Venues Viewed</p>
-                  <p className="text-2xl font-bold text-gray-900">{data.overview.venuesViewed || 0}</p>
-                  <p className="text-sm text-gray-500">{data.overview.citiesExplored || 0} cities</p>
+                  <p className="text-sm font-medium text-gray-600">Total Revenue</p>
+                  <p className="text-2xl font-bold text-gray-900">${data.overview.totalRevenue || 0}</p>
+                  <p className="text-sm text-gray-500">From bookings</p>
                 </div>
-                <div className="p-3 bg-purple-100 rounded-lg">
-                  <Target className="w-6 h-6 text-purple-600" />
+                <div className="p-3 bg-emerald-100 rounded-lg">
+                  <TrendingUp className="w-6 h-6 text-emerald-600" />
                 </div>
               </div>
             </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7 }}
+              className="bg-white rounded-xl shadow-lg p-6 border border-gray-100"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Venues Viewed</p>
+                  <p className="text-2xl font-bold text-gray-900">{data.overview.venuesViewed || 0}</p>
+                  <p className="text-sm text-gray-500">{data.overview.citiesExplored || 0} cities explored</p>
+                </div>
+                <div className="p-3 bg-indigo-100 rounded-lg">
+                  <Activity className="w-6 h-6 text-indigo-600" />
+                </div>
+              </div>
+            </motion.div>
+
+
           </>
         )}
       </div>
@@ -436,6 +499,7 @@ const AnalyticsDashboard: React.FC = () => {
                       <Area type="monotone" dataKey="sent" stackId="1" stroke="#3B82F6" fill="#3B82F6" fillOpacity={0.6} />
                       <Area type="monotone" dataKey="opened" stackId="1" stroke="#10B981" fill="#10B981" fillOpacity={0.6} />
                       <Area type="monotone" dataKey="replied" stackId="1" stroke="#8B5CF6" fill="#8B5CF6" fillOpacity={0.6} />
+                      <Area type="monotone" dataKey="venuesViewed" stackId="2" stroke="#8B5CF6" fill="#8B5CF6" fillOpacity={0.3} />
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>
@@ -455,7 +519,7 @@ const AnalyticsDashboard: React.FC = () => {
                           cx="50%"
                           cy="50%"
                           labelLine={false}
-                          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                          label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
                           outerRadius={80}
                           fill="#8884d8"
                           dataKey="value"

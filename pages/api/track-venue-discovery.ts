@@ -46,7 +46,7 @@ export default async function handler(
         filters: filters || {},
         metadata: metadata || {},
         created_at: new Date().toISOString()
-      });
+      }) as { data: Array<{ id: string }> | null, error: any };
 
     if (error) {
       console.error('Venue discovery tracking error:', error);

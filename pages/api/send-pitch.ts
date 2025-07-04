@@ -160,14 +160,7 @@ export default async function handler(
       console.error('Failed to track email event:', trackingError);
     }
 
-    // Log successful send for analytics
-    console.log('Email sent successfully:', {
-      to,
-      subject,
-      venueName,
-      artistName,
-      messageId: data?.id
-    });
+    // Email sent successfully
 
     res.status(200).json({ 
       success: true, 

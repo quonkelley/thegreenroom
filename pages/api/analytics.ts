@@ -1,9 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { supabase } from '../../lib/supabaseClient';
 
-// In-memory storage for basic analytics (replace with Supabase later)
-let analytics: any[] = [];
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -12,11 +9,8 @@ export default async function handler(
     try {
       const { event, ...data } = req.body;
       
-      analytics.push({
-        event,
-        ...data,
-        timestamp: new Date().toISOString()
-      });
+      // Track analytics event (can be expanded later)
+      console.log('Analytics event:', { event, ...data });
 
       res.json({ success: true });
     } catch (error) {
@@ -29,17 +23,10 @@ export default async function handler(
       
       if (!user_id) {
         // Return basic waitlist stats for public analytics (landing page)
-        const totalSignups = analytics.filter(a => a.event === 'email_signup').length;
-        const today = new Date().toDateString();
-        const todaySignups = analytics.filter(a => 
-          a.event === 'email_signup' && 
-          new Date(a.timestamp).toDateString() === today
-        ).length;
-
         res.json({
-          totalSignups,
-          todaySignups,
-          conversionRate: totalSignups > 0 ? Math.round((todaySignups / totalSignups) * 100) : 0,
+          totalSignups: 0,
+          todaySignups: 0,
+          conversionRate: 0,
           emailServiceAvailable: true
         });
         return;
@@ -72,21 +59,36 @@ async function getUserAnalytics(userId: string, timeframe: string) {
 
     // Calculate days for analytics
     const daysAgo = timeframe === '7d' ? 7 : timeframe === '30d' ? 30 : 90;
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - daysAgo);
 
-    // Get comprehensive analytics using the new function
-    const { data: analyticsData, error: analyticsError } = await supabase
-      .rpc('get_artist_analytics', { 
-        artist_uuid: profile.id, 
-        days_back: daysAgo 
-      });
+    // Get data directly from views instead of using the problematic function
+    const { data: emailPerformance } = await supabase
+      .from('email_performance_summary')
+      .select('*')
+      .eq('artist_id', profile.id)
+      .single();
 
-    if (analyticsError) {
-      console.error('Analytics function error:', analyticsError);
-      // Fallback to basic analytics
-      return getBasicAnalytics(profile, timeframe);
-    }
+    const { data: venueDiscovery } = await supabase
+      .from('venue_discovery_summary')
+      .select('*')
+      .eq('artist_id', profile.id)
+      .single();
 
-    const analytics = analyticsData || {};
+    const { data: pitchSuccess } = await supabase
+      .from('pitch_success_summary')
+      .select('*')
+      .eq('artist_id', profile.id)
+      .single();
+
+    // Get recent activity
+    const { data: recentActivity } = await supabase
+      .from('email_events')
+      .select('*')
+      .eq('artist_id', profile.id)
+      .gte('created_at', startDate.toISOString())
+      .order('created_at', { ascending: false })
+      .limit(10);
 
     // Get additional pitch and campaign stats
     const { count: totalPitches } = await supabase
@@ -108,10 +110,10 @@ async function getUserAnalytics(userId: string, timeframe: string) {
     // Calculate goals progress
     const goalsProgress = calculateGoalsProgress({
       totalPitches: totalPitches || 0,
-      totalEmails: analytics.email_performance?.total_emails || 0,
-      responseRate: analytics.email_performance?.response_rate || 0,
-      positiveResponses: analytics.email_performance?.positive_responses || 0,
-      successfulBookings: analytics.pitch_success?.successful_bookings || 0
+      totalEmails: emailPerformance?.total_emails || 0,
+      responseRate: emailPerformance?.response_rate || 0,
+      positiveResponses: emailPerformance?.positive_responses || 0,
+      successfulBookings: pitchSuccess?.successful_bookings || 0
     });
 
     return {
@@ -123,149 +125,38 @@ async function getUserAnalytics(userId: string, timeframe: string) {
       },
       overview: {
         totalPitches: totalPitches || 0,
-        recentPitches: analytics.pitch_success?.total_pitches || 0,
+        recentPitches: pitchSuccess?.total_pitches || 0,
         totalCampaigns: totalCampaigns || 0,
         activeCampaigns: activeCampaigns || 0,
-        totalEmails: analytics.email_performance?.total_emails || 0,
-        sentEmails: analytics.email_performance?.emails_sent || 0,
-        openedEmails: analytics.email_performance?.emails_opened || 0,
-        repliedEmails: analytics.email_performance?.emails_replied || 0,
-        responseRate: analytics.email_performance?.response_rate || 0,
-        openRate: analytics.email_performance?.open_rate || 0,
-        positiveResponses: analytics.email_performance?.positive_responses || 0,
-        negativeResponses: analytics.email_performance?.negative_responses || 0,
-        successfulBookings: analytics.pitch_success?.successful_bookings || 0,
-        bookingConversionRate: analytics.pitch_success?.booking_conversion_rate || 0,
-        totalRevenue: analytics.pitch_success?.total_revenue || 0,
-        venuesViewed: analytics.venue_discovery?.venues_viewed || 0,
-        citiesExplored: analytics.venue_discovery?.cities_explored || 0
+        totalEmails: emailPerformance?.total_emails || 0,
+        sentEmails: emailPerformance?.emails_sent || 0,
+        openedEmails: emailPerformance?.emails_opened || 0,
+        repliedEmails: emailPerformance?.emails_replied || 0,
+        responseRate: emailPerformance?.response_rate || 0,
+        openRate: emailPerformance?.open_rate || 0,
+        positiveResponses: emailPerformance?.positive_responses || 0,
+        negativeResponses: emailPerformance?.negative_responses || 0,
+        successfulBookings: pitchSuccess?.successful_bookings || 0,
+        bookingConversionRate: pitchSuccess?.booking_conversion_rate || 0,
+        totalRevenue: pitchSuccess?.total_revenue || 0,
+        venuesViewed: venueDiscovery?.venues_viewed || 0,
+        citiesExplored: venueDiscovery?.cities_explored || 0
       },
       performance: {
-        dailyStats: analytics.daily_stats || [],
-        trends: calculateTrends(analytics.daily_stats || []),
-        averages: calculateAverages(analytics.daily_stats || [])
+        dailyStats: [],
+        trends: { sent: [], opened: [], replied: [] },
+        averages: { dailySent: 0, dailyOpened: 0, dailyReplied: 0 }
       },
       goals: goalsProgress,
-      recentActivity: analytics.recent_activity || [],
-      venueDiscovery: analytics.venue_discovery || {},
-      pitchSuccess: analytics.pitch_success || {},
+      recentActivity: recentActivity || [],
+      venueDiscovery: venueDiscovery || {},
+      pitchSuccess: pitchSuccess || {},
       timeframe
     };
   } catch (error) {
     console.error('Error fetching user analytics:', error);
     throw error;
   }
-}
-
-async function getBasicAnalytics(profile: any, timeframe: string) {
-  // Fallback analytics when the comprehensive function is not available
-  const now = new Date();
-  const daysAgo = timeframe === '7d' ? 7 : timeframe === '30d' ? 30 : 90;
-  const startDate = new Date(now.getTime() - (daysAgo * 24 * 60 * 60 * 1000));
-
-  // Get basic stats from existing tables
-  const { count: totalPitches } = await supabase
-    .from('pitches')
-    .select('*', { count: 'exact', head: true })
-    .eq('artist_id', profile.id);
-
-  const { count: totalEmails } = await supabase
-    .from('outreach_emails')
-    .select('*', { count: 'exact', head: true })
-    .eq('artist_id', profile.id);
-
-  return {
-    profile: {
-      name: profile.name,
-      genre: profile.genre,
-      city: profile.city,
-      memberSince: profile.created_at
-    },
-    overview: {
-      totalPitches: totalPitches || 0,
-      totalEmails: totalEmails || 0,
-      sentEmails: totalEmails || 0,
-      responseRate: 0,
-      positiveResponses: 0
-    },
-    performance: {
-      dailyStats: [],
-      trends: { sent: [], opened: [], replied: [] },
-      averages: { dailySent: 0, dailyOpened: 0, dailyReplied: 0 }
-    },
-    goals: calculateGoalsProgress({
-      totalPitches: totalPitches || 0,
-      totalEmails: totalEmails || 0,
-      responseRate: 0,
-      positiveResponses: 0
-    }),
-    recentActivity: [],
-    timeframe
-  };
-}
-
-function calculatePerformanceMetrics(emailTimeline: any[], daysAgo: number) {
-  const dailyStats = new Map();
-  
-  // Initialize daily stats
-  for (let i = 0; i < daysAgo; i++) {
-    const date = new Date();
-    date.setDate(date.getDate() - i);
-    const dateKey = date.toISOString().split('T')[0];
-    dailyStats.set(dateKey, {
-      sent: 0,
-      opened: 0,
-      replied: 0,
-      positive: 0,
-      negative: 0
-    });
-  }
-
-  // Aggregate email data by day
-  emailTimeline.forEach(email => {
-    if (email.sent_at) {
-      const dateKey = email.sent_at.split('T')[0];
-      const stats = dailyStats.get(dateKey);
-      if (stats) {
-        stats.sent++;
-        if (email.status === 'opened' || email.status === 'replied') {
-          stats.opened++;
-        }
-        if (email.status === 'replied') {
-          stats.replied++;
-        }
-        if (email.response_type === 'positive') {
-          stats.positive++;
-        }
-        if (email.response_type === 'negative') {
-          stats.negative++;
-        }
-      }
-    }
-  });
-
-  // Calculate trends
-  const sortedDates = Array.from(dailyStats.keys()).sort();
-  const sentTrend = sortedDates.map(date => dailyStats.get(date).sent);
-  const openedTrend = sortedDates.map(date => dailyStats.get(date).opened);
-  const repliedTrend = sortedDates.map(date => dailyStats.get(date).replied);
-
-  return {
-    dailyStats: Array.from(dailyStats.entries()).map(([date, stats]) => ({
-      date,
-      ...stats
-    })),
-    trends: {
-      sent: sentTrend,
-      opened: openedTrend,
-      replied: repliedTrend
-    },
-    averages: {
-      dailySent: sentTrend.reduce((a, b) => a + b, 0) / daysAgo,
-      dailyOpened: openedTrend.reduce((a, b) => a + b, 0) / daysAgo,
-      dailyReplied: repliedTrend.reduce((a, b) => a + b, 0) / daysAgo
-    }
-  };
 }
 
 function calculateGoalsProgress(metrics: any) {
