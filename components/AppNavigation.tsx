@@ -7,7 +7,8 @@ import {
   BarChart3, 
   LogOut,
   Home,
-  TrendingUp
+  TrendingUp,
+  Building
 } from 'lucide-react';
 
 export default function AppNavigation() {
@@ -17,6 +18,7 @@ export default function AppNavigation() {
   const navigation = [
     { name: 'Dashboard', href: '/app/dashboard', icon: Home },
     { name: 'Profile', href: '/app/profile', icon: User },
+    { name: 'Venues', href: '/app/venues', icon: Building },
     { name: 'Pitch Generator', href: '/app/pitch', icon: Mail },
     { name: 'Outreach Tracker', href: '/app/outreach', icon: BarChart3 },
     { name: 'Analytics', href: '/app/analytics', icon: TrendingUp },

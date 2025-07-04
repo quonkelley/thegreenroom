@@ -211,6 +211,33 @@ export default function PitchGenerator() {
     }
   }, [profile]);
 
+  // Handle URL parameters for venue pre-fill
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const venueName = urlParams.get('venue');
+      const venueCity = urlParams.get('city');
+      const venueEmail = urlParams.get('email');
+      
+      if (venueName) setVenueName(venueName);
+      if (venueCity) setVenueCity(venueCity);
+      
+      // Auto-select venue type based on venue name or city
+      if (venueName || venueCity) {
+        const searchTerm = (venueName + ' ' + venueCity).toLowerCase();
+        if (searchTerm.includes('jazz') || searchTerm.includes('blue')) {
+          setSelectedVenueType('jazz-club');
+        } else if (searchTerm.includes('coffee') || searchTerm.includes('cafe')) {
+          setSelectedVenueType('coffee-shop');
+        } else if (searchTerm.includes('restaurant') || searchTerm.includes('bar')) {
+          setSelectedVenueType('restaurant');
+        } else {
+          setSelectedVenueType('rock-venue');
+        }
+      }
+    }
+  }, []);
+
   const fetchProfile = async () => {
     if (!user?.email) return;
     
