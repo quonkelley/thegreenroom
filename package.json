@@ -14,7 +14,9 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
-    "test:openai": "ts-node test-openai.ts"
+    "test:openai": "ts-node test-openai.ts",
+    "css:watch": "tailwindcss -i ./styles/globals.css -o ./public/styles/output.css --watch",
+    "css:build": "tailwindcss -i ./styles/globals.css -o ./public/styles/output.css"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.38.0",
