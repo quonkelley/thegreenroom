@@ -179,4 +179,78 @@ export interface EnvironmentVariables {
   RESEND_API_KEY: string;
   OPENAI_API_KEY: string;
   NODE_ENV: 'development' | 'production' | 'test';
+}
+
+// Outreach Tracker Types
+export interface OutreachCampaign {
+  id: string;
+  artist_id: string;
+  name: string;
+  description?: string;
+  status: 'active' | 'paused' | 'completed';
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OutreachEmail {
+  id: string;
+  campaign_id?: string;
+  artist_id: string;
+  venue_name: string;
+  venue_email?: string;
+  venue_city?: string;
+  venue_website?: string;
+  subject: string;
+  body: string;
+  status: 'draft' | 'sent' | 'delivered' | 'opened' | 'replied' | 'bounced';
+  sent_at?: string;
+  opened_at?: string;
+  replied_at?: string;
+  response_content?: string;
+  response_type?: 'positive' | 'negative' | 'neutral' | 'no_response';
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OutreachFollowup {
+  id: string;
+  email_id: string;
+  artist_id: string;
+  type: 'reminder' | 'follow_up' | 'thank_you';
+  scheduled_date: string;
+  completed_at?: string;
+  action_taken?: string;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Venue {
+  id: string;
+  name: string;
+  city: string;
+  state?: string;
+  country?: string;
+  email?: string;
+  website?: string;
+  phone?: string;
+  capacity?: number;
+  genres?: string[];
+  contact_person?: string;
+  booking_email?: string;
+  notes?: string;
+  status: 'active' | 'inactive' | 'verified';
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OutreachStats {
+  total_emails: number;
+  sent_emails: number;
+  opened_emails: number;
+  replied_emails: number;
+  response_rate: number;
+  positive_responses: number;
+  negative_responses: number;
 } 

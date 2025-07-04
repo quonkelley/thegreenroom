@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../lib/auth';
 import { supabase } from '../../lib/supabaseClient';
 import { ProtectedRoute } from '../../components/ProtectedRoute';
+import AppNavigation from '../../components/AppNavigation';
 
 interface Pitch {
   id: string;
@@ -216,7 +217,9 @@ export default function PitchGenerator() {
 
   return (
     <ProtectedRoute>
-      <div className="max-w-5xl mx-auto py-12 px-4 grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="min-h-screen bg-gray-50">
+        <AppNavigation />
+        <div className="max-w-5xl mx-auto py-12 px-4 grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Profile Summary */}
         <div className="bg-dark-800/50 rounded-xl p-6 shadow-md">
           <h2 className="text-xl font-bold mb-4 text-white">Profile Summary</h2>
@@ -326,6 +329,7 @@ export default function PitchGenerator() {
               {loading ? 'Sending...' : 'Send Pitch'}
             </button>
           </div>
+        </div>
         </div>
       </div>
     </ProtectedRoute>

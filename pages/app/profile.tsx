@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../lib/auth';
 import { ProtectedRoute } from '../../components/ProtectedRoute';
+import AppNavigation from '../../components/AppNavigation';
 import { supabase } from '../../lib/supabaseClient';
 
 const steps = [
@@ -105,7 +106,9 @@ export default function ArtistProfileWizard() {
 
   return (
     <ProtectedRoute>
-      <div className="max-w-xl mx-auto py-12 px-4">
+      <div className="min-h-screen bg-gray-50">
+        <AppNavigation />
+        <div className="max-w-xl mx-auto py-12 px-4">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="font-bold text-lg text-gray-800">TheGreenRoom.ai</div>
@@ -278,6 +281,7 @@ export default function ArtistProfileWizard() {
             </button>
           </div>
         </form>
+        </div>
       </div>
     </ProtectedRoute>
   );
