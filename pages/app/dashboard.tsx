@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../lib/auth';
 import { ProtectedRoute } from '../../components/ProtectedRoute';
 import AppNavigation from '../../components/AppNavigation';
+import OnboardingModal from '../../components/OnboardingModal';
+import GettingStartedGuide from '../../components/GettingStartedGuide';
 import { supabase } from '../../lib/supabaseClient';
 import { ArtistProfile } from '../../types';
 import Link from 'next/link';
@@ -125,6 +127,7 @@ export default function Dashboard() {
     <ProtectedRoute>
       <div className="min-h-screen bg-gray-50">
         <AppNavigation />
+        <OnboardingModal />
         <div className="max-w-6xl mx-auto py-12 px-4">
           {/* Welcome Header */}
           <div className="mb-8">
@@ -171,6 +174,13 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
+
+          {/* Getting Started Guide for New Users */}
+          {stats.pitchesGenerated === 0 && (
+            <div className="lg:col-span-3 mb-8">
+              <GettingStartedGuide />
+            </div>
+          )}
 
           {/* Main Content Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -291,13 +301,38 @@ export default function Dashboard() {
                 {stats.pitchesGenerated === 0 && stats.emailsSent === 0 ? (
                   <div className="text-center py-8">
                     <div className="text-4xl mb-4">🎵</div>
-                    <p className="text-gray-600 mb-4">No activity yet. Start by generating your first pitch!</p>
-                    <Link 
-                      href="/app/pitch"
-                      className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
-                    >
-                      Generate Pitch
-                    </Link>
+                    <p className="text-gray-600 mb-4">No activity yet. Let's get you started!</p>
+                    <div className="space-y-3">
+                      <button
+                        onClick={async () => {
+                          if (!user?.email) return;
+                          const { data: profile } = await supabase
+                            .from('artist_profiles')
+                            .select('id')
+                            .eq('email', user.email)
+                            .single();
+                          if (profile) {
+                            const response = await fetch('/api/onboarding/sample-data', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ artist_id: profile.id, email: user.email })
+                            });
+                            if (response.ok) {
+                              window.location.reload();
+                            }
+                          }
+                        }}
+                        className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition-colors mr-3"
+                      >
+                        Get Sample Data
+                      </button>
+                      <Link 
+                        href="/app/pitch"
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                      >
+                        Generate Pitch
+                      </Link>
+                    </div>
                   </div>
                 ) : (
                   <div className="space-y-3">
