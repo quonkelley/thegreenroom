@@ -62,6 +62,24 @@ export default function ArtistProfileWizard() {
     }
   }, [user]);
 
+  // Enhanced auto-save with status feedback
+  const saveDraft = useCallback(async () => {
+    setAutoSaveStatus('saving');
+    try {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(form));
+      setLastSaved(new Date());
+      setAutoSaveStatus('saved');
+
+      // Clear saved status after 3 seconds
+      setTimeout(() => {
+        setAutoSaveStatus('idle');
+      }, 3000);
+    } catch (error) {
+      console.error('Error saving draft:', error);
+      setAutoSaveStatus('error');
+    }
+  }, [form]);
+
   // Auto-save functionality
   useEffect(() => {
     if (autoSaveTimer) {
@@ -128,24 +146,6 @@ export default function ArtistProfileWizard() {
       setProfileLoading(false);
     }
   };
-
-  // Enhanced auto-save with status feedback
-  const saveDraft = useCallback(async () => {
-    setAutoSaveStatus('saving');
-    try {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(form));
-      setLastSaved(new Date());
-      setAutoSaveStatus('saved');
-
-      // Clear saved status after 3 seconds
-      setTimeout(() => {
-        setAutoSaveStatus('idle');
-      }, 3000);
-    } catch (error) {
-      console.error('Error saving draft:', error);
-      setAutoSaveStatus('error');
-    }
-  }, [form]);
 
   // Handle input changes with real-time validation
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
