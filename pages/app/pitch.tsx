@@ -1,31 +1,40 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '../../lib/auth';
-import { supabase } from '../../lib/supabaseClient';
-import { ProtectedRoute } from '../../components/ProtectedRoute';
-import AppNavigation from '../../components/AppNavigation';
 import { motion } from 'framer-motion';
-import { 
-  Sparkles, 
-  Save, 
-  Send, 
-  History, 
-  BookOpen, 
-  Target, 
-  Music, 
-  Coffee, 
-  Building, 
-  Star,
-  Copy,
-  RefreshCw,
-  TrendingUp,
-  MessageSquare,
+import {
+  AlertCircle,
+  Archive,
+  BookOpen,
+  Building,
   Calendar,
-  MapPin,
+  CheckCircle,
+  Clock as ClockIcon,
+  Coffee,
+  Copy,
+  Download,
+  Edit3,
+  Eye,
+  History,
   Mail,
-  Clock,
+  MapPin,
+  MessageSquare,
+  Music,
+  Printer,
+  RefreshCw,
+  Save,
+  Send,
+  Share2,
+  Sparkles,
+  Star,
+  Target,
+  TrendingUp,
   X
 } from 'lucide-react';
-import { EMAIL_TEMPLATES, getTemplatesByVenueType, replaceTemplateVariables } from '../../lib/emailTemplates';
+import { useCallback, useEffect, useState } from 'react';
+import Link from 'next/link';
+import AppNavigation from '../../components/AppNavigation';
+import { ProtectedRoute } from '../../components/ProtectedRoute';
+import { useAuth } from '../../lib/auth';
+import { getTemplatesByVenueType, replaceTemplateVariables } from '../../lib/emailTemplates';
+import { supabase } from '../../lib/supabaseClient';
 
 interface Pitch {
   id: string;
@@ -35,8 +44,12 @@ interface Pitch {
   venue_type?: string;
   venue_name?: string;
   venue_city?: string;
+  venue_email?: string;
+  status: 'draft' | 'sent' | 'archived' | 'scheduled';
   success_rate?: number;
   response_count?: number;
+  sent_at?: string;
+  scheduled_at?: string;
   created_at: string;
   updated_at: string;
 }
@@ -191,6 +204,7 @@ export default function PitchGenerator() {
   const [currentPitch, setCurrentPitch] = useState<Pitch | null>(null);
   const [venueName, setVenueName] = useState('');
   const [venueCity, setVenueCity] = useState('');
+  const [venueEmail, setVenueEmail] = useState('');
   const [selectedVenueType, setSelectedVenueType] = useState<string>('');
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
   const [profile, setProfile] = useState<ArtistProfile | null>(null);
@@ -206,55 +220,12 @@ export default function PitchGenerator() {
   const [sendingEmail, setSendingEmail] = useState(false);
   const [emailSuccess, setEmailSuccess] = useState('');
   const [emailError, setEmailError] = useState('');
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile' | 'email'>('desktop');
 
-  // Fetch user's profile on component mount
-  useEffect(() => {
-    if (user) {
-      fetchProfile();
-    }
-  }, [user]);
-
-  // Load existing pitch when profile is loaded
-  useEffect(() => {
-    if (profile) {
-      loadPitch();
-      loadPitchHistory();
-    }
-  }, [profile]);
-
-  // Handle URL parameters for venue pre-fill
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const urlParams = new URLSearchParams(window.location.search);
-      const venueName = urlParams.get('venue');
-      const venueCity = urlParams.get('city');
-      const venueEmail = urlParams.get('email');
-      const venueType = urlParams.get('venueType');
-      
-      if (venueName) setVenueName(venueName);
-      if (venueCity) setVenueCity(venueCity);
-      if (venueEmail) setEmailRecipient(venueEmail);
-      if (venueType) setSelectedVenueType(venueType);
-      
-      // Auto-select venue type based on venue name or city if not provided
-      if (!venueType && (venueName || venueCity)) {
-        const searchTerm = (venueName + ' ' + venueCity).toLowerCase();
-        if (searchTerm.includes('jazz') || searchTerm.includes('blue')) {
-          setSelectedVenueType('jazz-club');
-        } else if (searchTerm.includes('coffee') || searchTerm.includes('cafe')) {
-          setSelectedVenueType('coffee-shop');
-        } else if (searchTerm.includes('restaurant') || searchTerm.includes('bar')) {
-          setSelectedVenueType('restaurant');
-        } else {
-          setSelectedVenueType('rock-venue');
-        }
-      }
-    }
-  }, []);
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     if (!user?.email) return;
-    
+
     setProfileLoading(true);
     try {
       const { data, error } = await supabase
@@ -275,17 +246,17 @@ export default function PitchGenerator() {
     } finally {
       setProfileLoading(false);
     }
-  };
+  }, [user?.email]);
 
-  const loadPitch = async () => {
+  const loadPitch = useCallback(async () => {
     if (!profile) return;
-    
+
     setLoading(true);
     setError('');
     try {
       const response = await fetch(`/api/pitches?artist_id=${profile.id}`);
       const data = await response.json();
-      
+
       if (response.ok && data.pitch) {
         setCurrentPitch(data.pitch);
         setSubject(data.pitch.subject);
@@ -297,22 +268,67 @@ export default function PitchGenerator() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [profile]);
 
-  const loadPitchHistory = async () => {
+  const loadPitchHistory = useCallback(async () => {
     if (!profile) return;
-    
+
     try {
       const response = await fetch(`/api/pitches/history?artist_id=${profile.id}`);
       const data = await response.json();
-      
+
       if (response.ok) {
         setPitchHistory(data.pitches || []);
       }
     } catch (err) {
       console.error('Failed to load pitch history:', err);
     }
-  };
+  }, [profile]);
+
+  // Fetch user's profile on component mount
+  useEffect(() => {
+    if (user) {
+      fetchProfile();
+    }
+  }, [user, fetchProfile]);
+
+  // Load existing pitch when profile is loaded
+  useEffect(() => {
+    if (profile) {
+      loadPitch();
+      loadPitchHistory();
+    }
+  }, [profile, loadPitch, loadPitchHistory]);
+
+  // Handle URL parameters for venue pre-fill
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const venueName = urlParams.get('venue');
+      const venueCity = urlParams.get('city');
+      const venueEmail = urlParams.get('email');
+      const venueType = urlParams.get('venueType');
+
+      if (venueName) setVenueName(venueName);
+      if (venueCity) setVenueCity(venueCity);
+      if (venueEmail) setVenueEmail(venueEmail);
+      if (venueType) setSelectedVenueType(venueType);
+
+      // Auto-select venue type based on venue name or city if not provided
+      if (!venueType && (venueName || venueCity)) {
+        const searchTerm = (venueName + ' ' + venueCity).toLowerCase();
+        if (searchTerm.includes('jazz') || searchTerm.includes('blue')) {
+          setSelectedVenueType('jazz-club');
+        } else if (searchTerm.includes('coffee') || searchTerm.includes('cafe')) {
+          setSelectedVenueType('coffee-shop');
+        } else if (searchTerm.includes('restaurant') || searchTerm.includes('bar')) {
+          setSelectedVenueType('restaurant');
+        } else {
+          setSelectedVenueType('rock-venue');
+        }
+      }
+    }
+  }, []);
 
   const savePitch = async () => {
     if (!profile || !subject.trim() || !body.trim()) {
@@ -323,7 +339,7 @@ export default function PitchGenerator() {
     setSaving(true);
     setError('');
     setSuccess('');
-    
+
     try {
       const response = await fetch('/api/pitches', {
         method: 'POST',
@@ -334,12 +350,14 @@ export default function PitchGenerator() {
           body: body.trim(),
           venue_type: selectedVenueType,
           venue_name: venueName,
-          venue_city: venueCity
+          venue_city: venueCity,
+          venue_email: venueEmail,
+          status: currentPitch?.status || 'draft'
         }),
       });
 
       const data = await response.json();
-      
+
       if (response.ok) {
         setCurrentPitch(data.pitch);
         setSuccess('Pitch saved successfully!');
@@ -358,11 +376,11 @@ export default function PitchGenerator() {
 
   const handleGenerateDraft = async () => {
     if (!profile) return;
-    
+
     setLoading(true);
     setError('');
     setSuccess('');
-    
+
     try {
       const response = await fetch('/api/generate-pitch', {
         method: 'POST',
@@ -379,7 +397,7 @@ export default function PitchGenerator() {
       });
 
       const data = await response.json();
-      
+
       if (response.ok) {
         setSubject(data.pitch.subject);
         setBody(data.pitch.body);
@@ -398,10 +416,10 @@ export default function PitchGenerator() {
 
   const applyTemplate = (template: any) => {
     if (!profile) return;
-    
+
     let templateSubject = template.subject;
     let templateBody = template.body;
-    
+
     // Replace placeholders with actual data
     const replacements = {
       '{artist_name}': profile.name,
@@ -410,17 +428,17 @@ export default function PitchGenerator() {
       '{venue_name}': venueName || 'your venue',
       '{venue_city}': venueCity || 'your city',
       '{website}': profile.website || 'my website',
-      '{social_links_text}': profile.social_links && Object.keys(profile.social_links).length > 0 
+      '{social_links_text}': profile.social_links && Object.keys(profile.social_links).length > 0
         ? `You can check out my music and social media presence at: ${Object.values(profile.social_links).join(', ')}`
         : '',
       '{website_text}': profile.website ? `Website: ${profile.website}` : ''
     };
-    
+
     Object.entries(replacements).forEach(([placeholder, value]) => {
       templateSubject = templateSubject.replace(new RegExp(placeholder, 'g'), value);
       templateBody = templateBody.replace(new RegExp(placeholder, 'g'), value);
     });
-    
+
     setSubject(templateSubject);
     setBody(templateBody);
     setSelectedTemplate(template.id);
@@ -432,7 +450,9 @@ export default function PitchGenerator() {
     setBody(pitch.body);
     setVenueName(pitch.venue_name || '');
     setVenueCity(pitch.venue_city || '');
+    setVenueEmail(pitch.venue_email || '');
     setSelectedVenueType(pitch.venue_type || '');
+    setCurrentPitch(pitch);
     setShowPitchHistory(false);
   };
 
@@ -447,7 +467,12 @@ export default function PitchGenerator() {
       setError('Please fill in venue name and recipient email');
       return;
     }
-    
+
+    // Auto-fill email recipient if venue email is available
+    if (venueEmail && !emailRecipient) {
+      setEmailRecipient(venueEmail);
+    }
+
     // Prepare email content with template variables
     const variables = {
       artistName: profile?.name || '',
@@ -507,10 +532,10 @@ export default function PitchGenerator() {
       if (data.success) {
         setEmailSuccess('Email sent successfully!');
         setShowEmailModal(false);
-        
+
         // Save the pitch to history
         await savePitch();
-        
+
         // Clear form
         setEmailRecipient('');
         setEmailSubject('');
@@ -551,6 +576,165 @@ export default function PitchGenerator() {
     setEmailContent(replaceTemplateVariables(template.content, variables));
   };
 
+  const tabs = [
+    { id: 'generator', label: 'Generator', icon: Sparkles },
+    { id: 'preview', label: 'Preview', icon: Eye },
+    { id: 'templates', label: 'Templates', icon: BookOpen },
+    { id: 'history', label: 'History', icon: History }
+  ];
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'draft':
+        return <Edit3 className="w-4 h-4 text-gray-500" />;
+      case 'sent':
+        return <CheckCircle className="w-4 h-4 text-green-500" />;
+      case 'scheduled':
+        return <ClockIcon className="w-4 h-4 text-blue-500" />;
+      case 'archived':
+        return <Archive className="w-4 h-4 text-gray-400" />;
+      default:
+        return <AlertCircle className="w-4 h-4 text-yellow-500" />;
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'draft':
+        return 'bg-gray-100 text-gray-700';
+      case 'sent':
+        return 'bg-green-100 text-green-700';
+      case 'scheduled':
+        return 'bg-blue-100 text-blue-700';
+      case 'archived':
+        return 'bg-gray-100 text-gray-500';
+      default:
+        return 'bg-yellow-100 text-yellow-700';
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'draft':
+        return 'Draft';
+      case 'sent':
+        return 'Sent';
+      case 'scheduled':
+        return 'Scheduled';
+      case 'archived':
+        return 'Archived';
+      default:
+        return 'Unknown';
+    }
+  };
+
+  const generatePreviewContent = () => {
+    if (!profile) return { subject: '', body: '' };
+
+    const template = PITCH_TEMPLATES.find(t => t.id === selectedTemplate);
+    if (!template) return { subject: subject, body: body };
+
+    const variables = {
+      artist_name: profile.name,
+      genre: profile.genre,
+      city: profile.city,
+      venue_name: venueName || '{venue_name}',
+      venue_city: venueCity || '{venue_city}',
+      website: profile.website || '{website}',
+      social_links_text: profile.social_links ? Object.entries(profile.social_links).map(([platform, url]) => `${platform}: ${url}`).join(', ') : '{social_links}',
+      website_text: profile.website ? `\n${profile.website}` : ''
+    };
+
+    const previewSubject = template.subject.replace(/\{(\w+)\}/g, (match, key) => variables[key as keyof typeof variables] || match);
+    const previewBody = template.body.replace(/\{(\w+)\}/g, (match, key) => variables[key as keyof typeof variables] || match);
+
+    return {
+      subject: previewSubject,
+      body: previewBody
+    };
+  };
+
+  const copyPitchToClipboard = () => {
+    const content = `Subject: ${subject}\n\n${body}`;
+    navigator.clipboard.writeText(content);
+    setSuccess('Pitch copied to clipboard!');
+    setTimeout(() => setSuccess(''), 3000);
+  };
+
+  const downloadPitch = () => {
+    const content = `Subject: ${subject}\n\n${body}`;
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `pitch-${venueName || 'venue'}-${new Date().toISOString().split('T')[0]}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const printPitch = () => {
+    const content = `Subject: ${subject}\n\n${body}`;
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Pitch - ${venueName || 'Venue'}</title>
+            <style>
+              body { font-family: Arial, sans-serif; line-height: 1.6; margin: 20px; }
+              .header { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
+              .subject { font-weight: bold; font-size: 18px; margin-bottom: 20px; }
+              .body { white-space: pre-wrap; }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <h1>Pitch for ${venueName || 'Venue'}</h1>
+              <p>Generated on ${new Date().toLocaleDateString()}</p>
+            </div>
+            <div class="subject">Subject: ${subject}</div>
+            <div class="body">${body}</div>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.print();
+    }
+  };
+
+  const updatePitchStatus = async (pitchId: string, status: 'draft' | 'sent' | 'archived' | 'scheduled') => {
+    try {
+      const { error } = await supabase
+        .from('pitches')
+        .update({
+          status,
+          updated_at: new Date().toISOString(),
+          ...(status === 'sent' ? { sent_at: new Date().toISOString() } : {})
+        })
+        .eq('id', pitchId);
+
+      if (error) throw error;
+
+      // Update local state
+      setPitchHistory(prev => prev.map(pitch =>
+        pitch.id === pitchId ? { ...pitch, status, updated_at: new Date().toISOString() } : pitch
+      ));
+
+      if (currentPitch?.id === pitchId) {
+        setCurrentPitch(prev => prev ? { ...prev, status, updated_at: new Date().toISOString() } : null);
+      }
+
+      setSuccess(`Pitch status updated to ${getStatusText(status)}`);
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (error) {
+      console.error('Error updating pitch status:', error);
+      setError('Failed to update pitch status');
+      setTimeout(() => setError(''), 3000);
+    }
+  };
+
   if (profileLoading) {
     return (
       <div className="max-w-7xl mx-auto py-12 px-4">
@@ -568,12 +752,12 @@ export default function PitchGenerator() {
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">Profile Required</h2>
           <p className="text-gray-600 mb-6">You need to complete your artist profile before using the pitch generator.</p>
-          <a 
-            href="/app/profile" 
+          <Link
+            href="/app/profile"
             className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
           >
             Complete Profile
-          </a>
+          </Link>
         </div>
       </div>
     );
@@ -594,11 +778,7 @@ export default function PitchGenerator() {
           <div className="bg-white rounded-xl shadow-lg border border-gray-100 mb-8">
             <div className="border-b border-gray-200">
               <nav className="flex space-x-8 px-6">
-                {[
-                  { id: 'generator', label: 'Generator', icon: Sparkles },
-                  { id: 'templates', label: 'Templates', icon: BookOpen },
-                  { id: 'history', label: 'History', icon: History }
-                ].map((tab) => (
+                {tabs.map((tab) => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
@@ -644,7 +824,7 @@ export default function PitchGenerator() {
                       )}
                     </div>
                   </div>
-                  
+
                   {/* Pitch Editor */}
                   <div className="lg:col-span-2">
                     <div className="bg-white rounded-xl p-6 border border-gray-200">
@@ -656,14 +836,14 @@ export default function PitchGenerator() {
                           </div>
                         )}
                       </div>
-                      
+
                       {success && <div className="mb-4 text-green-700 font-medium bg-green-50 p-3 rounded border border-green-200">{success}</div>}
                       {error && <div className="mb-4 text-red-700 font-medium bg-red-50 p-3 rounded border border-red-200">{error}</div>}
-                      
+
                       {/* Venue Information */}
                       <div className="mb-6 p-4 bg-gray-50 rounded-lg">
                         <h3 className="font-medium mb-3 text-gray-700">Venue Information</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                           <div>
                             <label className="block text-sm mb-1 text-gray-600">Venue Name</label>
                             <input
@@ -685,6 +865,16 @@ export default function PitchGenerator() {
                             />
                           </div>
                           <div>
+                            <label className="block text-sm mb-1 text-gray-600">Venue Email</label>
+                            <input
+                              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                              placeholder="venue@example.com"
+                              value={venueEmail}
+                              onChange={e => setVenueEmail(e.target.value)}
+                              disabled={loading || saving}
+                            />
+                          </div>
+                          <div>
                             <label className="block text-sm mb-1 text-gray-600">Venue Type</label>
                             <select
                               className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
@@ -699,7 +889,7 @@ export default function PitchGenerator() {
                             </select>
                           </div>
                         </div>
-                        
+
                                                  {selectedVenueType && (
                            <div className="mt-3 p-3 bg-blue-50 rounded-lg">
                              <div className="flex items-center gap-2 mb-2">
@@ -721,7 +911,7 @@ export default function PitchGenerator() {
                            </div>
                          )}
                       </div>
-                      
+
                       {/* Template Selection */}
                       <div className="mb-6">
                         <div className="flex items-center justify-between mb-3">
@@ -745,7 +935,7 @@ export default function PitchGenerator() {
                           ))}
                         </select>
                       </div>
-                      
+
                       {/* Pitch Content */}
                       <div className="mb-4">
                         <label className="block mb-2 font-medium text-gray-700">Subject Line</label>
@@ -757,7 +947,7 @@ export default function PitchGenerator() {
                           disabled={loading || saving}
                         />
                       </div>
-                      
+
                       <div className="mb-6">
                         <label className="block mb-2 font-medium text-gray-700">Email Body</label>
                         <textarea
@@ -769,10 +959,10 @@ export default function PitchGenerator() {
                           disabled={loading || saving}
                         />
                       </div>
-                      
+
                       {/* Email Recipient */}
                       <div className="mb-6">
-                        <label className="block mb-2 font-medium text-gray-700">Venue Email</label>
+                        <label className="block mb-2 font-medium text-gray-700">Email Recipient</label>
                         <input
                           className="w-full border border-gray-300 rounded px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                           placeholder="venue@example.com"
@@ -780,6 +970,9 @@ export default function PitchGenerator() {
                           onChange={e => setEmailRecipient(e.target.value)}
                           disabled={loading || saving}
                         />
+                        <p className="text-xs text-gray-500 mt-1">
+                          This is the email address where your pitch will be sent
+                        </p>
                       </div>
 
                       {/* Action Buttons */}
@@ -819,6 +1012,207 @@ export default function PitchGenerator() {
                       </div>
                     </div>
                   </div>
+                </div>
+              )}
+
+              {/* Preview Tab */}
+              {activeTab === 'preview' && (
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-lg font-semibold text-gray-900">Pitch Preview</h3>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setPreviewMode('desktop')}
+                        className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                          previewMode === 'desktop'
+                            ? 'bg-blue-100 text-blue-700'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                      >
+                        Desktop
+                      </button>
+                      <button
+                        onClick={() => setPreviewMode('mobile')}
+                        className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                          previewMode === 'mobile'
+                            ? 'bg-blue-100 text-blue-700'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                      >
+                        Mobile
+                      </button>
+                      <button
+                        onClick={() => setPreviewMode('email')}
+                        className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                          previewMode === 'email'
+                            ? 'bg-blue-100 text-blue-700'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                      >
+                        Email
+                      </button>
+                    </div>
+                  </div>
+
+                  {(!subject.trim() && !body.trim()) ? (
+                    <div className="text-center py-12 text-gray-500">
+                      <Eye className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                      <p>No pitch content to preview. Create a pitch first!</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      {/* Pitch Status and Actions */}
+                      <div className="bg-white border border-gray-200 rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-3">
+                            <span className="text-sm font-medium text-gray-700">Status:</span>
+                            <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(currentPitch?.status || 'draft')}`}>
+                              {getStatusIcon(currentPitch?.status || 'draft')}
+                              {getStatusText(currentPitch?.status || 'draft')}
+                            </span>
+                            {currentPitch?.sent_at && (
+                              <span className="text-xs text-gray-500">
+                                Sent: {new Date(currentPitch.sent_at).toLocaleDateString()}
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {currentPitch && (
+                              <>
+                                <select
+                                  value={currentPitch.status}
+                                  onChange={(e) => updatePitchStatus(currentPitch.id, e.target.value as any)}
+                                  className="text-xs border border-gray-300 rounded px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                                >
+                                  <option value="draft">Draft</option>
+                                  <option value="sent">Sent</option>
+                                  <option value="scheduled">Scheduled</option>
+                                  <option value="archived">Archived</option>
+                                </select>
+                              </>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={copyPitchToClipboard}
+                            className="flex items-center gap-1 px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
+                          >
+                            <Copy className="w-3 h-3" />
+                            Copy
+                          </button>
+                          <button
+                            onClick={downloadPitch}
+                            className="flex items-center gap-1 px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
+                          >
+                            <Download className="w-3 h-3" />
+                            Download
+                          </button>
+                          <button
+                            onClick={printPitch}
+                            className="flex items-center gap-1 px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
+                          >
+                            <Printer className="w-3 h-3" />
+                            Print
+                          </button>
+                          <button
+                            onClick={() => {
+                              const content = `Subject: ${subject}\n\n${body}`;
+                              navigator.share ? navigator.share({ text: content }) : copyPitchToClipboard();
+                            }}
+                            className="flex items-center gap-1 px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
+                          >
+                            <Share2 className="w-3 h-3" />
+                            Share
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Preview Content */}
+                      <div className={`bg-white border border-gray-200 rounded-lg overflow-hidden ${
+                        previewMode === 'mobile' ? 'max-w-sm mx-auto' : 'w-full'
+                      }`}>
+                        <div className="bg-gray-50 px-4 py-2 border-b border-gray-200">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-gray-700">
+                              {previewMode === 'email' ? 'Email Preview' : 'Pitch Preview'}
+                            </span>
+                            <span className="text-xs text-gray-500">
+                              {previewMode === 'mobile' ? 'Mobile View' : previewMode === 'email' ? 'Email Client' : 'Desktop View'}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className={`p-6 ${previewMode === 'mobile' ? 'text-sm' : ''}`}>
+                          {previewMode === 'email' ? (
+                            <div className="space-y-4">
+                              <div>
+                                <div className="text-xs text-gray-500 mb-1">From: {profile?.name} &lt;{user?.email}&gt;</div>
+                                <div className="text-xs text-gray-500 mb-1">To: {venueEmail || 'venue@example.com'}</div>
+                                <div className="text-xs text-gray-500 mb-3">Subject: {subject}</div>
+                              </div>
+                              <div className="border-t border-gray-200 pt-4">
+                                <div className="whitespace-pre-wrap text-gray-900">{body}</div>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="space-y-4">
+                              <div>
+                                <h4 className="font-semibold text-gray-900 mb-2">Subject</h4>
+                                <p className="text-gray-700">{subject}</p>
+                              </div>
+                              <div>
+                                <h4 className="font-semibold text-gray-900 mb-2">Message</h4>
+                                <div className="whitespace-pre-wrap text-gray-700">{body}</div>
+                              </div>
+                              {venueName && (
+                                <div className="bg-blue-50 p-3 rounded-lg">
+                                  <div className="text-sm text-blue-800">
+                                    <strong>Venue:</strong> {venueName}
+                                    {venueCity && `, ${venueCity}`}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Pitch Analytics Preview */}
+                      {currentPitch && (
+                        <div className="bg-white border border-gray-200 rounded-lg p-4">
+                          <h4 className="font-medium text-gray-900 mb-3">Pitch Performance</h4>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div className="text-center">
+                              <div className="text-2xl font-bold text-blue-600">
+                                {currentPitch.success_rate || 0}%
+                              </div>
+                              <div className="text-xs text-gray-500">Success Rate</div>
+                            </div>
+                            <div className="text-center">
+                              <div className="text-2xl font-bold text-green-600">
+                                {currentPitch.response_count || 0}
+                              </div>
+                              <div className="text-xs text-gray-500">Responses</div>
+                            </div>
+                            <div className="text-center">
+                              <div className="text-2xl font-bold text-purple-600">
+                                {currentPitch.sent_at ? 'Yes' : 'No'}
+                              </div>
+                              <div className="text-xs text-gray-500">Sent</div>
+                            </div>
+                            <div className="text-center">
+                              <div className="text-2xl font-bold text-orange-600">
+                                {new Date(currentPitch.created_at).toLocaleDateString()}
+                              </div>
+                              <div className="text-xs text-gray-500">Created</div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -936,7 +1330,7 @@ export default function PitchGenerator() {
                     <p className="text-green-800">{emailSuccess}</p>
                   </div>
                 )}
-                
+
                 {emailError && (
                   <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
                     <p className="text-red-800">{emailError}</p>
@@ -1016,4 +1410,4 @@ export default function PitchGenerator() {
       </div>
     </ProtectedRoute>
   );
-} 
+}
