@@ -1,0 +1,29 @@
+{
+  "extends": ["next/core-web-vitals"],
+  "plugins": ["prettier"],
+  "rules": {
+    // Code quality rules
+    "prefer-const": "error",
+    "no-var": "error",
+    "no-console": ["warn", { "allow": ["warn", "error"] }],
+    "eqeqeq": ["error", "always"],
+    "curly": ["error", "all"],
+    "no-eval": "error",
+    "no-implied-eval": "error",
+    "no-new-func": "error",
+
+    // React specific rules
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn",
+    "react/jsx-uses-react": "off",
+    "react/react-in-jsx-scope": "off",
+
+    // Prettier integration
+    "prettier/prettier": "error"
+  },
+  "env": {
+    "browser": true,
+    "es2022": true,
+    "node": true
+  }
+}
