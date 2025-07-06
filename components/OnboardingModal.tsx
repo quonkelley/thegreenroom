@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '../lib/auth';
+import { validateEmail, validateId } from '../lib/security';
 import { supabase } from '../lib/supabaseClient';
 
 interface OnboardingStep {
@@ -74,30 +75,57 @@ export default function OnboardingModal() {
 
     const checkOnboardingStatus = useCallback(async () => {
     try {
+      // Input validation using security utilities
+      const sanitizedEmail = validateEmail(user?.email);
+      if (!sanitizedEmail) {
+        console.warn('Invalid email format detected');
+        return;
+      }
+
       // Check if user has a complete profile
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from('artist_profiles')
         .select('id, profile_complete, name, genre, bio')
-        .eq('email', user?.email)
+        .eq('email', sanitizedEmail)
         .single();
 
+      if (profileError) {
+        console.error('Error fetching profile:', profileError);
+        return;
+      }
+
+      // Validate profile ID before using in queries
+      const validatedProfileId = validateId(profile?.id);
+
       // Check if user has any pitches
-      const { count: pitchCount } = await supabase
+      const { count: pitchCount, error: pitchError } = await supabase
         .from('pitches')
         .select('*', { count: 'exact', head: true })
-        .eq('artist_id', profile?.id || '');
+        .eq('artist_id', validatedProfileId);
+
+      if (pitchError) {
+        console.error('Error fetching pitch count:', pitchError);
+      }
 
       // Check if user has any campaigns
-      const { count: campaignCount } = await supabase
+      const { count: campaignCount, error: campaignError } = await supabase
         .from('outreach_campaigns')
         .select('*', { count: 'exact', head: true })
-        .eq('artist_id', profile?.id || '');
+        .eq('artist_id', validatedProfileId);
+
+      if (campaignError) {
+        console.error('Error fetching campaign count:', campaignError);
+      }
 
       // Check if user has any emails
-      const { count: emailCount } = await supabase
+      const { count: emailCount, error: emailError } = await supabase
         .from('outreach_emails')
         .select('*', { count: 'exact', head: true })
-        .eq('artist_id', profile?.id || '');
+        .eq('artist_id', validatedProfileId);
+
+      if (emailError) {
+        console.error('Error fetching email count:', emailError);
+      }
 
       const updatedSteps = steps.map(step => {
         switch (step.id) {
@@ -154,19 +182,34 @@ export default function OnboardingModal() {
   };
 
   const createSampleData = async () => {
-    if (!user?.email) return;
+    // Input validation using security utilities
+    const sanitizedEmail = validateEmail(user?.email);
+    if (!sanitizedEmail) {
+      console.warn('Invalid email format detected');
+      return;
+    }
 
     setLoading(true);
     try {
-      // Get artist profile ID
-      const { data: profile } = await supabase
+      // Get artist profile ID with proper error handling
+      const { data: profile, error: profileError } = await supabase
         .from('artist_profiles')
         .select('id')
-        .eq('email', user.email)
+        .eq('email', sanitizedEmail)
         .single();
+
+      if (profileError) {
+        throw new Error(`Failed to fetch profile: ${profileError.message}`);
+      }
 
       if (!profile) {
         throw new Error('Profile not found');
+      }
+
+      // Validate profile ID before using
+      const validatedProfileId = validateId(profile.id);
+      if (!validatedProfileId) {
+        throw new Error('Invalid profile ID');
       }
 
       const response = await fetch('/api/onboarding/sample-data', {
@@ -175,8 +218,8 @@ export default function OnboardingModal() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          artist_id: profile.id,
-          email: user.email
+          artist_id: validatedProfileId,
+          email: sanitizedEmail
         }),
       });
 
