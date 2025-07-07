@@ -8,12 +8,12 @@ export default function AnalyticsPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gray-50">
+      <div className='min-h-screen bg-gray-50'>
         <AppNavigation />
-        <div className="max-w-7xl mx-auto py-8 px-4">
+        <div className='max-w-7xl mx-auto py-8 px-4'>
           <AnalyticsDashboard />
         </div>
       </div>
     </ProtectedRoute>
   );
-} 
+}

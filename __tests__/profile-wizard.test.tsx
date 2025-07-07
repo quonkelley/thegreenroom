@@ -4,8 +4,18 @@ jest.mock('../lib/supabaseClient', () => ({
       insert: jest.fn(() => Promise.resolve({ data: null, error: null })),
     })),
     auth: {
-      getSession: jest.fn(() => Promise.resolve({ data: { session: { user: { id: 'test-user-id', email: 'test@example.com' } } } })),
-      onAuthStateChange: jest.fn(() => ({ data: { subscription: { unsubscribe: jest.fn() } } })),
+      getSession: jest.fn(() =>
+        Promise.resolve({
+          data: {
+            session: {
+              user: { id: 'test-user-id', email: 'test@example.com' },
+            },
+          },
+        })
+      ),
+      onAuthStateChange: jest.fn(() => ({
+        data: { subscription: { unsubscribe: jest.fn() } },
+      })),
       signInWithPassword: jest.fn(() => Promise.resolve({ error: null })),
       signUp: jest.fn(() => Promise.resolve({ error: null })),
       signOut: jest.fn(() => Promise.resolve()),
@@ -59,4 +69,4 @@ describe('ArtistProfileWizard', () => {
     expect(screen.getByText(/City is required/i)).toBeInTheDocument();
     expect(screen.getByText(/Email is required/i)).toBeInTheDocument();
   });
-}); 
+});

@@ -8,7 +8,9 @@
  * @param email - The email to validate
  * @returns Sanitized email or null if invalid
  */
-export const validateEmail = (email: string | null | undefined): string | null => {
+export const validateEmail = (
+  email: string | null | undefined
+): string | null => {
   if (!email || typeof email !== 'string') {
     return null;
   }
@@ -28,7 +30,9 @@ export const validateEmail = (email: string | null | undefined): string | null =
  * @param id - The ID to validate
  * @returns Sanitized ID or null if invalid
  */
-export const validateId = (id: string | number | null | undefined): string | number | null => {
+export const validateId = (
+  id: string | number | null | undefined
+): string | number | null => {
   if (id === null || id === undefined) {
     return null;
   }
@@ -97,7 +101,9 @@ export const validateUrl = (url: string | null | undefined): string | null => {
  * @param phone - The phone number to validate
  * @returns Sanitized phone number or null if invalid
  */
-export const validatePhone = (phone: string | null | undefined): string | null => {
+export const validatePhone = (
+  phone: string | null | undefined
+): string | null => {
   if (!phone || typeof phone !== 'string') {
     return null;
   }
@@ -167,6 +173,9 @@ export class RateLimiter {
 export const globalRateLimiter = new RateLimiter();
 
 // Cleanup old entries every 5 minutes
-setInterval(() => {
-  globalRateLimiter.cleanup();
-}, 5 * 60 * 1000);
+setInterval(
+  () => {
+    globalRateLimiter.cleanup();
+  },
+  5 * 60 * 1000
+);

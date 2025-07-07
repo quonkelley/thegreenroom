@@ -45,16 +45,23 @@ describe('/api/pitches', () => {
       });
       await handler(req, res);
       expect(res._getStatusCode()).toBe(400);
-      expect(res._getData()).toMatch(/artist_id, subject, and body are required/);
+      expect(res._getData()).toMatch(
+        /artist_id, subject, and body are required/
+      );
     });
 
     it('creates new pitch when none exists', async () => {
       // Mock no existing pitch
       mockMaybeSingle.mockResolvedValueOnce({ data: null, error: null });
       // Mock successful insert
-      mockSingle.mockResolvedValueOnce({ 
-        data: { id: 'pitch-123', artist_id: '123', subject: 'Test', body: 'Test body' }, 
-        error: null 
+      mockSingle.mockResolvedValueOnce({
+        data: {
+          id: 'pitch-123',
+          artist_id: '123',
+          subject: 'Test',
+          body: 'Test body',
+        },
+        error: null,
       });
 
       const { req, res } = createMocks({
@@ -68,14 +75,19 @@ describe('/api/pitches', () => {
 
     it('updates existing pitch when one exists', async () => {
       // Mock existing pitch
-      mockMaybeSingle.mockResolvedValueOnce({ 
-        data: { id: 'pitch-123' }, 
-        error: null 
+      mockMaybeSingle.mockResolvedValueOnce({
+        data: { id: 'pitch-123' },
+        error: null,
       });
       // Mock successful update
-      mockSingle.mockResolvedValueOnce({ 
-        data: { id: 'pitch-123', artist_id: '123', subject: 'Updated', body: 'Updated body' }, 
-        error: null 
+      mockSingle.mockResolvedValueOnce({
+        data: {
+          id: 'pitch-123',
+          artist_id: '123',
+          subject: 'Updated',
+          body: 'Updated body',
+        },
+        error: null,
       });
 
       const { req, res } = createMocks({
@@ -89,7 +101,10 @@ describe('/api/pitches', () => {
 
     it('returns 500 if Supabase operation fails', async () => {
       mockMaybeSingle.mockResolvedValueOnce({ data: null, error: null });
-      mockSingle.mockResolvedValueOnce({ data: null, error: { message: 'Database error' } });
+      mockSingle.mockResolvedValueOnce({
+        data: null,
+        error: { message: 'Database error' },
+      });
 
       const { req, res } = createMocks({
         method: 'POST',
@@ -113,7 +128,12 @@ describe('/api/pitches', () => {
     });
 
     it('returns pitch data when found', async () => {
-      const mockPitch = { id: 'pitch-123', artist_id: '123', subject: 'Test', body: 'Test body' };
+      const mockPitch = {
+        id: 'pitch-123',
+        artist_id: '123',
+        subject: 'Test',
+        body: 'Test body',
+      };
       mockMaybeSingle.mockResolvedValueOnce({ data: mockPitch, error: null });
 
       const { req, res } = createMocks({
@@ -138,7 +158,10 @@ describe('/api/pitches', () => {
     });
 
     it('returns 500 if Supabase query fails', async () => {
-      mockMaybeSingle.mockResolvedValueOnce({ data: null, error: { message: 'Query error' } });
+      mockMaybeSingle.mockResolvedValueOnce({
+        data: null,
+        error: { message: 'Query error' },
+      });
 
       const { req, res } = createMocks({
         method: 'GET',
@@ -156,4 +179,4 @@ describe('/api/pitches', () => {
     expect(res._getStatusCode()).toBe(405);
     expect(res._getData()).toMatch(/Method not allowed/);
   });
-}); 
+});

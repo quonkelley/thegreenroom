@@ -22,9 +22,11 @@ Authorization: Bearer <your-jwt-token>
 ### Authentication
 
 #### POST /api/auth/login
+
 Authenticate a user with email and password.
 
 **Request Body:**
+
 ```json
 {
   "email": "user@example.com",
@@ -33,6 +35,7 @@ Authenticate a user with email and password.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -51,9 +54,11 @@ Authenticate a user with email and password.
 ```
 
 #### POST /api/auth/signup
+
 Register a new user account.
 
 **Request Body:**
+
 ```json
 {
   "email": "user@example.com",
@@ -66,6 +71,7 @@ Register a new user account.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -81,14 +87,17 @@ Register a new user account.
 ### Artist Profiles
 
 #### GET /api/profiles
+
 Get the current user's artist profile.
 
 **Headers:**
+
 ```
 Authorization: Bearer <jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -119,14 +128,17 @@ Authorization: Bearer <jwt-token>
 ```
 
 #### POST /api/profiles
+
 Create or update the current user's artist profile.
 
 **Headers:**
+
 ```
 Authorization: Bearer <jwt-token>
 ```
 
 **Request Body:**
+
 ```json
 {
   "name": "Artist Name",
@@ -150,6 +162,7 @@ Authorization: Bearer <jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -168,19 +181,23 @@ Authorization: Bearer <jwt-token>
 ### Pitches
 
 #### GET /api/pitches
+
 Get all pitches for the current user.
 
 **Headers:**
+
 ```
 Authorization: Bearer <jwt-token>
 ```
 
 **Query Parameters:**
+
 - `status` (optional): Filter by status (`draft`, `sent`, `archived`)
 - `limit` (optional): Number of pitches to return (default: 50)
 - `offset` (optional): Number of pitches to skip (default: 0)
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -203,14 +220,17 @@ Authorization: Bearer <jwt-token>
 ```
 
 #### POST /api/pitches
+
 Create a new pitch.
 
 **Headers:**
+
 ```
 Authorization: Bearer <jwt-token>
 ```
 
 **Request Body:**
+
 ```json
 {
   "venue_name": "Blue Note",
@@ -222,6 +242,7 @@ Authorization: Bearer <jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -241,14 +262,17 @@ Authorization: Bearer <jwt-token>
 ```
 
 #### PUT /api/pitches/:id
+
 Update an existing pitch.
 
 **Headers:**
+
 ```
 Authorization: Bearer <jwt-token>
 ```
 
 **Request Body:**
+
 ```json
 {
   "venue_name": "Updated Venue Name",
@@ -260,6 +284,7 @@ Authorization: Bearer <jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -278,14 +303,17 @@ Authorization: Bearer <jwt-token>
 ```
 
 #### DELETE /api/pitches/:id
+
 Delete a pitch.
 
 **Headers:**
+
 ```
 Authorization: Bearer <jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -296,14 +324,17 @@ Authorization: Bearer <jwt-token>
 ### AI Pitch Generation
 
 #### POST /api/generate-pitch
+
 Generate a pitch using AI based on artist profile and venue information.
 
 **Headers:**
+
 ```
 Authorization: Bearer <jwt-token>
 ```
 
 **Request Body:**
+
 ```json
 {
   "venue_name": "Blue Note",
@@ -313,6 +344,7 @@ Authorization: Bearer <jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -326,14 +358,17 @@ Authorization: Bearer <jwt-token>
 ### Outreach Tracking
 
 #### GET /api/outreach/campaigns
+
 Get all outreach campaigns for the current user.
 
 **Headers:**
+
 ```
 Authorization: Bearer <jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -352,14 +387,17 @@ Authorization: Bearer <jwt-token>
 ```
 
 #### POST /api/outreach/campaigns
+
 Create a new outreach campaign.
 
 **Headers:**
+
 ```
 Authorization: Bearer <jwt-token>
 ```
 
 **Request Body:**
+
 ```json
 {
   "name": "Spring 2024 Tour",
@@ -368,6 +406,7 @@ Authorization: Bearer <jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -384,20 +423,24 @@ Authorization: Bearer <jwt-token>
 ```
 
 #### GET /api/outreach/emails
+
 Get all outreach emails for the current user.
 
 **Headers:**
+
 ```
 Authorization: Bearer <jwt-token>
 ```
 
 **Query Parameters:**
+
 - `campaign_id` (optional): Filter by campaign ID
 - `status` (optional): Filter by status (`draft`, `sent`, `delivered`, `opened`, `replied`, `bounced`)
 - `limit` (optional): Number of emails to return (default: 50)
 - `offset` (optional): Number of emails to skip (default: 0)
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -427,14 +470,17 @@ Authorization: Bearer <jwt-token>
 ```
 
 #### POST /api/outreach/emails
+
 Create a new outreach email.
 
 **Headers:**
+
 ```
 Authorization: Bearer <jwt-token>
 ```
 
 **Request Body:**
+
 ```json
 {
   "campaign_id": "campaign-uuid",
@@ -448,6 +494,7 @@ Authorization: Bearer <jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -469,19 +516,23 @@ Authorization: Bearer <jwt-token>
 ```
 
 #### GET /api/outreach/stats
+
 Get outreach statistics for the current user.
 
 **Headers:**
+
 ```
 Authorization: Bearer <jwt-token>
 ```
 
 **Query Parameters:**
+
 - `campaign_id` (optional): Filter by campaign ID
 - `start_date` (optional): Start date for statistics (ISO format)
 - `end_date` (optional): End date for statistics (ISO format)
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -501,9 +552,11 @@ Authorization: Bearer <jwt-token>
 ### Email Subscription
 
 #### POST /api/subscribe
+
 Subscribe an email address to the newsletter.
 
 **Request Body:**
+
 ```json
 {
   "email": "user@example.com"
@@ -511,6 +564,7 @@ Subscribe an email address to the newsletter.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -530,6 +584,7 @@ All endpoints return consistent error responses:
 ```
 
 Common HTTP status codes:
+
 - `200` - Success
 - `201` - Created
 - `400` - Bad Request (validation errors)
@@ -541,10 +596,12 @@ Common HTTP status codes:
 ## Rate Limiting
 
 API endpoints are rate-limited to prevent abuse:
+
 - Authentication endpoints: 5 requests per minute
 - Other endpoints: 100 requests per minute
 
 Rate limit headers are included in responses:
+
 ```
 X-RateLimit-Limit: 100
 X-RateLimit-Remaining: 95
@@ -577,6 +634,7 @@ TheGreenRoom supports webhooks for real-time notifications. Configure webhook en
 - Profile changes
 
 Webhook payloads include a signature header for verification:
+
 ```
 X-TheGreenRoom-Signature: sha256=...
-``` 
+```

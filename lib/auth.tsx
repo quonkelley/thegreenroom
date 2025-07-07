@@ -1,7 +1,7 @@
+import { Session, User } from '@supabase/supabase-js';
 import { createContext, useContext, useEffect, useState } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from './supabaseClient';
 import { AuthContextType } from '../types';
+import { supabase } from './supabaseClient';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -39,14 +39,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signUp = async (email: string, password: string, userData: any) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: userData, // This will be stored in auth.users.user_metadata
-      },
-    });
-    return { error };
+    try {
+      // Attempting signup for email
+
+      // Use our server-side API instead of direct Supabase call
+      const response = await fetch('/api/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+          userData,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        // Signup API error
+        return {
+          error: {
+            message: result.error || 'Failed to create account',
+          },
+        };
+      }
+
+      // Signup successful
+      return {
+        success: true,
+        message: result.message,
+        requiresConfirmation: false, // No email confirmation needed
+      };
+    } catch (error) {
+      // Signup error
+      return {
+        error: {
+          message:
+            'An unexpected error occurred during signup. Please try again.',
+        },
+      };
+    }
   };
 
   const signOut = async () => {
@@ -79,4 +113,4 @@ export function useAuth() {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-} 
+}

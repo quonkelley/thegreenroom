@@ -39,7 +39,7 @@ a {
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, #4ADE80, #8B5CF6);
+  background: linear-gradient(135deg, #4ade80, #8b5cf6);
   background-size: 200% 200%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -60,4 +60,4 @@ a {
 
 .section-padding {
   @apply py-20 px-4;
-} 
+}

@@ -4,4 +4,4 @@ export interface EmailSignupResult {
   error?: string;
 }
 
-export type EmailSignupError = string; 
+export type EmailSignupError = string;

@@ -80,27 +80,27 @@ export default function ArtistProfilePage() {
 
   // Load existing profile on mount
   const loadExistingProfile = useCallback(async () => {
-    console.log('Loading profile for user:', user?.id);
+    // Loading profile for user
     if (!user?.id) {
-      console.log('No user ID, setting loading to false');
+      // No user ID, setting loading to false
       setProfileLoading(false);
       return;
     }
     try {
-      console.log('Fetching profile from API...');
+      // Fetching profile from API
       const response = await fetch(`/api/profiles?user_id=${user.id}`);
       const data = await response.json();
-      console.log('API response:', data);
+      // API response
       if (data.success) {
-        console.log('Profile data received:', data.profile);
+        // Profile data received
         setExistingProfile(data.profile); // This will be null if no profile exists
       } else {
-        console.log('API error:', data.error);
+        // API error
       }
     } catch (error) {
-      console.error('Failed to load profile:', error);
+      // Failed to load profile
     } finally {
-      console.log('Setting profile loading to false');
+      // Setting profile loading to false
       setProfileLoading(false);
     }
   }, [user?.id]);
@@ -447,7 +447,7 @@ function ArtistProfileWizard({
         setAutoSaveStatus('idle');
       }, 3000);
     } catch (error) {
-      console.error('Error saving draft:', error);
+      // Error saving draft
       setAutoSaveStatus('error');
     }
   }, [form]);
@@ -624,7 +624,7 @@ function ArtistProfileWizard({
         }
         result = JSON.parse(responseText);
       } catch (parseError) {
-        console.error('JSON parse error:', parseError);
+        // JSON parse error
         throw new Error('Invalid response from server');
       }
 
@@ -641,7 +641,7 @@ function ArtistProfileWizard({
       // Call the callback to update the parent component
       onProfileSaved(result.data);
     } catch (err: any) {
-      console.error('Profile save error:', err);
+      // Profile save error
 
       if (err.name === 'AbortError') {
         setSubmitError(

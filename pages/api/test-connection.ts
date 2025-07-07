@@ -13,10 +13,11 @@ export default async function handler(
 
   try {
     if (!process.env.RESEND_API_KEY) {
-      return res.json({ 
-        success: false, 
+      return res.json({
+        success: false,
         error: 'Resend not configured',
-        message: 'Please configure your Resend API key in the environment variables'
+        message:
+          'Please configure your Resend API key in the environment variables',
       });
     }
 
@@ -35,7 +36,8 @@ export default async function handler(
     res.json({ success: true, message: 'Connection successful!' });
   } catch (error) {
     console.error('Connection test failed:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error occurred';
     res.json({ success: false, error: errorMessage });
   }
-} 
+}

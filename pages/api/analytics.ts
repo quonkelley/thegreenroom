@@ -8,9 +8,9 @@ export default async function handler(
   if (req.method === 'POST') {
     try {
       const { event, ...data } = req.body;
-      
+
       // Track analytics event (can be expanded later)
-      console.log('Analytics event:', { event, ...data });
+      // TODO: Implement proper analytics tracking
 
       res.json({ success: true });
     } catch (error) {
@@ -20,24 +20,27 @@ export default async function handler(
   } else if (req.method === 'GET') {
     try {
       const { user_id, timeframe = '30d' } = req.query;
-      
+
       if (!user_id) {
         // Return basic waitlist stats for public analytics (landing page)
         res.json({
           totalSignups: 0,
           todaySignups: 0,
           conversionRate: 0,
-          emailServiceAvailable: true
+          emailServiceAvailable: true,
         });
         return;
       }
 
       // Get user-specific analytics
-      const userAnalytics = await getUserAnalytics(user_id as string, timeframe as string);
+      const userAnalytics = await getUserAnalytics(
+        user_id as string,
+        timeframe as string
+      );
       res.json(userAnalytics);
     } catch (error) {
-      console.error('Stats error:', error);
-      res.status(500).json({ error: 'Failed to get stats' });
+      // Log error for debugging but don't expose to client
+      return res.status(500).json({ error: 'Failed to fetch analytics' });
     }
   } else {
     res.status(405).json({ error: 'Method not allowed' });
@@ -113,7 +116,7 @@ async function getUserAnalytics(userId: string, timeframe: string) {
       totalEmails: emailPerformance?.total_emails || 0,
       responseRate: emailPerformance?.response_rate || 0,
       positiveResponses: emailPerformance?.positive_responses || 0,
-      successfulBookings: pitchSuccess?.successful_bookings || 0
+      successfulBookings: pitchSuccess?.successful_bookings || 0,
     });
 
     return {
@@ -121,7 +124,7 @@ async function getUserAnalytics(userId: string, timeframe: string) {
         name: profile.name,
         genre: profile.genre,
         city: profile.city,
-        memberSince: profile.created_at
+        memberSince: profile.created_at,
       },
       overview: {
         totalPitches: totalPitches || 0,
@@ -140,18 +143,18 @@ async function getUserAnalytics(userId: string, timeframe: string) {
         bookingConversionRate: pitchSuccess?.booking_conversion_rate || 0,
         totalRevenue: pitchSuccess?.total_revenue || 0,
         venuesViewed: venueDiscovery?.venues_viewed || 0,
-        citiesExplored: venueDiscovery?.cities_explored || 0
+        citiesExplored: venueDiscovery?.cities_explored || 0,
       },
       performance: {
         dailyStats: [],
         trends: { sent: [], opened: [], replied: [] },
-        averages: { dailySent: 0, dailyOpened: 0, dailyReplied: 0 }
+        averages: { dailySent: 0, dailyOpened: 0, dailyReplied: 0 },
       },
       goals: goalsProgress,
       recentActivity: recentActivity || [],
       venueDiscovery: venueDiscovery || {},
       pitchSuccess: pitchSuccess || {},
-      timeframe
+      timeframe,
     };
   } catch (error) {
     console.error('Error fetching user analytics:', error);
@@ -165,34 +168,61 @@ function calculateGoalsProgress(metrics: any) {
     monthlyPitches: 20,
     monthlyEmails: 50,
     targetResponseRate: 15,
-    monthlyBookings: 3
+    monthlyBookings: 3,
   };
 
   return {
     pitches: {
       current: metrics.totalPitches,
       goal: goals.monthlyPitches,
-      progress: Math.min((metrics.totalPitches / goals.monthlyPitches) * 100, 100),
-      status: metrics.totalPitches >= goals.monthlyPitches ? 'completed' : 'in_progress'
+      progress: Math.min(
+        (metrics.totalPitches / goals.monthlyPitches) * 100,
+        100
+      ),
+      status:
+        metrics.totalPitches >= goals.monthlyPitches
+          ? 'completed'
+          : 'in_progress',
     },
     emails: {
       current: metrics.totalEmails,
       goal: goals.monthlyEmails,
-      progress: Math.min((metrics.totalEmails / goals.monthlyEmails) * 100, 100),
-      status: metrics.totalEmails >= goals.monthlyEmails ? 'completed' : 'in_progress'
+      progress: Math.min(
+        (metrics.totalEmails / goals.monthlyEmails) * 100,
+        100
+      ),
+      status:
+        metrics.totalEmails >= goals.monthlyEmails
+          ? 'completed'
+          : 'in_progress',
     },
     responseRate: {
       current: metrics.responseRate,
       goal: goals.targetResponseRate,
-      progress: Math.min((metrics.responseRate / goals.targetResponseRate) * 100, 100),
-      status: metrics.responseRate >= goals.targetResponseRate ? 'completed' : 'in_progress'
+      progress: Math.min(
+        (metrics.responseRate / goals.targetResponseRate) * 100,
+        100
+      ),
+      status:
+        metrics.responseRate >= goals.targetResponseRate
+          ? 'completed'
+          : 'in_progress',
     },
     bookings: {
       current: metrics.successfulBookings || metrics.positiveResponses,
       goal: goals.monthlyBookings,
-      progress: Math.min(((metrics.successfulBookings || metrics.positiveResponses) / goals.monthlyBookings) * 100, 100),
-      status: (metrics.successfulBookings || metrics.positiveResponses) >= goals.monthlyBookings ? 'completed' : 'in_progress'
-    }
+      progress: Math.min(
+        ((metrics.successfulBookings || metrics.positiveResponses) /
+          goals.monthlyBookings) *
+          100,
+        100
+      ),
+      status:
+        (metrics.successfulBookings || metrics.positiveResponses) >=
+        goals.monthlyBookings
+          ? 'completed'
+          : 'in_progress',
+    },
   };
 }
 
@@ -200,7 +230,7 @@ function calculateTrends(dailyStats: any[]) {
   const sent = dailyStats.map(stat => stat.emails_sent || 0);
   const opened = dailyStats.map(stat => stat.emails_opened || 0);
   const replied = dailyStats.map(stat => stat.emails_replied || 0);
-  
+
   return { sent, opened, replied };
 }
 
@@ -208,14 +238,23 @@ function calculateAverages(dailyStats: any[]) {
   if (dailyStats.length === 0) {
     return { dailySent: 0, dailyOpened: 0, dailyReplied: 0 };
   }
-  
-  const totalSent = dailyStats.reduce((sum, stat) => sum + (stat.emails_sent || 0), 0);
-  const totalOpened = dailyStats.reduce((sum, stat) => sum + (stat.emails_opened || 0), 0);
-  const totalReplied = dailyStats.reduce((sum, stat) => sum + (stat.emails_replied || 0), 0);
-  
+
+  const totalSent = dailyStats.reduce(
+    (sum, stat) => sum + (stat.emails_sent || 0),
+    0
+  );
+  const totalOpened = dailyStats.reduce(
+    (sum, stat) => sum + (stat.emails_opened || 0),
+    0
+  );
+  const totalReplied = dailyStats.reduce(
+    (sum, stat) => sum + (stat.emails_replied || 0),
+    0
+  );
+
   return {
     dailySent: totalSent / dailyStats.length,
     dailyOpened: totalOpened / dailyStats.length,
-    dailyReplied: totalReplied / dailyStats.length
+    dailyReplied: totalReplied / dailyStats.length,
   };
-} 
+}

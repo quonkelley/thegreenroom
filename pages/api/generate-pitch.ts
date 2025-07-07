@@ -2,7 +2,10 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { createClient } from '@supabase/supabase-js';
 import OpenAI from 'openai';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -38,35 +41,47 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Try to generate pitch with OpenAI first
     let generatedPitch;
     try {
-      generatedPitch = await generatePitchWithAI(artist, venue_info, template_id, openai);
+      generatedPitch = await generatePitchWithAI(
+        artist,
+        venue_info,
+        template_id,
+        openai
+      );
     } catch (aiError) {
-      console.warn('OpenAI generation failed, falling back to template:', aiError);
+      console.warn(
+        'OpenAI generation failed, falling back to template:',
+        aiError
+      );
       // Fallback to template-based generation
       generatedPitch = generatePitchTemplate(artist, venue_info, template_id);
     }
 
-    res.status(200).json({ 
+    res.status(200).json({
       pitch: generatedPitch,
-      message: 'Pitch generated successfully'
+      message: 'Pitch generated successfully',
     });
-
   } catch (error) {
     console.error('Generate pitch error:', error);
     res.status(500).json({ error: 'Failed to generate pitch' });
   }
 }
 
-async function generatePitchWithAI(artist: any, venueInfo: any | undefined, templateId: string | undefined, openai: OpenAI) {
+async function generatePitchWithAI(
+  artist: any,
+  venueInfo: any | undefined,
+  templateId: string | undefined,
+  openai: OpenAI
+) {
   const venueName = venueInfo?.name || 'your venue';
   const venueCity = venueInfo?.city || 'your city';
   const venueType = venueInfo?.type || '';
-  
+
   // Get venue type specific guidance
   const venueTypeGuidance = getVenueTypeGuidance(venueType);
-  
+
   // Get template guidance
   const templateGuidance = getTemplateGuidance(templateId);
-  
+
   const prompt = `You are an AI assistant helping independent musicians write professional booking inquiry emails to venues. 
 
 Artist Information:
@@ -110,23 +125,24 @@ Example format:
 }`;
 
   const completion = await openai.chat.completions.create({
-    model: "gpt-4",
+    model: 'gpt-4',
     messages: [
       {
-        role: "system",
-        content: "You are a professional music industry assistant specializing in helping independent artists write compelling booking inquiry emails. Always respond with valid JSON containing 'subject' and 'body' fields. Tailor your approach based on venue type and template style."
+        role: 'system',
+        content:
+          "You are a professional music industry assistant specializing in helping independent artists write compelling booking inquiry emails. Always respond with valid JSON containing 'subject' and 'body' fields. Tailor your approach based on venue type and template style.",
       },
       {
-        role: "user",
-        content: prompt
-      }
+        role: 'user',
+        content: prompt,
+      },
     ],
     temperature: 0.7,
     max_tokens: 600,
   });
 
   const response = completion.choices[0]?.message?.content;
-  
+
   if (!response) {
     throw new Error('No response from OpenAI');
   }
@@ -134,14 +150,14 @@ Example format:
   try {
     // Parse the JSON response
     const parsedResponse = JSON.parse(response);
-    
+
     if (!parsedResponse.subject || !parsedResponse.body) {
       throw new Error('Invalid response format from OpenAI');
     }
 
     return {
       subject: parsedResponse.subject,
-      body: parsedResponse.body
+      body: parsedResponse.body,
     };
   } catch (parseError) {
     console.error('Failed to parse OpenAI response:', parseError);
@@ -161,7 +177,7 @@ Tips for this venue type:
 - Reference jazz history and tradition
 - Focus on creating an elegant, sophisticated atmosphere
 - Mention experience with jazz audiences`,
-    
+
     'rock-venue': `
 Venue Type: Rock Venue
 Characteristics: High energy, younger audience, full band setup, weekend focus
@@ -172,7 +188,7 @@ Tips for this venue type:
 - Include video links and live performance examples
 - Focus on bringing in crowds and creating excitement
 - Mention experience with high-energy performances`,
-    
+
     'coffee-shop': `
 Venue Type: Coffee Shop
 Characteristics: Intimate setting, background music, daytime/evening, acoustic focus
@@ -183,8 +199,8 @@ Tips for this venue type:
 - Focus on creating a relaxed, comfortable atmosphere
 - Mention ability to work with existing setup
 - Emphasize daytime and evening availability`,
-    
-    'restaurant': `
+
+    restaurant: `
 Venue Type: Restaurant
 Characteristics: Ambient music, dining atmosphere, evening focus, professional demeanor
 Tips for this venue type:
@@ -193,9 +209,9 @@ Tips for this venue type:
 - Highlight background music capabilities
 - Focus on enhancing the dining atmosphere
 - Mention experience with restaurant environments
-- Emphasize evening availability and consistency`
+- Emphasize evening availability and consistency`,
   };
-  
+
   return guidance[venueType as keyof typeof guidance] || '';
 }
 
@@ -209,7 +225,7 @@ Approach: Formal, business-like, comprehensive
 - Emphasize qualifications and experience
 - Be thorough and comprehensive
 - Use traditional business email format`,
-    
+
     'casual-friendly': `
 Template Style: Casual & Friendly
 Approach: Warm, approachable, conversational
@@ -218,7 +234,7 @@ Approach: Warm, approachable, conversational
 - Show enthusiasm and personality
 - Use casual language while remaining professional
 - Create a connection through shared interests`,
-    
+
     'data-driven': `
 Template Style: Data-Driven Approach
 Approach: Results-focused, metrics-oriented
@@ -226,30 +242,44 @@ Approach: Results-focused, metrics-oriented
 - Emphasize track record and proven results
 - Focus on business benefits and ROI
 - Use data to support claims
-- Be specific about audience engagement and attendance`
+- Be specific about audience engagement and attendance`,
   };
-  
+
   return guidance[templateId as keyof typeof guidance] || '';
 }
 
 // Enhanced fallback template function
-function generatePitchTemplate(artist: any, venueInfo?: any, templateId?: string) {
+function generatePitchTemplate(
+  artist: any,
+  venueInfo?: any,
+  templateId?: string
+) {
   const venueName = venueInfo?.name || 'your venue';
   const venueCity = venueInfo?.city || 'your city';
   const venueType = venueInfo?.type || '';
-  
+
   // Get venue-specific template
-  const venueSpecificTemplate = getVenueSpecificTemplate(artist, venueName, venueCity, venueType);
-  
+  const venueSpecificTemplate = getVenueSpecificTemplate(
+    artist,
+    venueName,
+    venueCity,
+    venueType
+  );
+
   // Apply template style if specified
   if (templateId) {
     return applyTemplateStyle(venueSpecificTemplate, templateId);
   }
-  
+
   return venueSpecificTemplate;
 }
 
-function getVenueSpecificTemplate(artist: any, venueName: string, venueCity: string, venueType: string) {
+function getVenueSpecificTemplate(
+  artist: any,
+  venueName: string,
+  venueCity: string,
+  venueType: string
+) {
   const baseTemplate = {
     subject: `Booking Inquiry: ${artist.name} - ${artist.genre} Artist`,
     body: `Hi there,
@@ -263,9 +293,10 @@ A bit about me:
 • Location: ${artist.city}
 • Website: ${artist.website || 'Available upon request'}
 
-${artist.social_links && Object.keys(artist.social_links).length > 0 ? 
-  `You can check out my music and social media presence at: ${Object.values(artist.social_links).join(', ')}` : 
-  ''
+${
+  artist.social_links && Object.keys(artist.social_links).length > 0
+    ? `You can check out my music and social media presence at: ${Object.values(artist.social_links).join(', ')}`
+    : ''
 }
 
 I'm flexible with dates and would love to discuss potential booking opportunities. I can provide additional materials like press photos, EPK, or sample tracks if needed.
@@ -277,7 +308,7 @@ Looking forward to hearing from you!
 Best regards,
 ${artist.name}
 
-${artist.website ? `Website: ${artist.website}` : ''}`
+${artist.website ? `Website: ${artist.website}` : ''}`,
   };
 
   // Add venue-specific content
@@ -288,21 +319,21 @@ ${artist.website ? `Website: ${artist.website}` : ''}`
         'I believe my music would be a great fit for your sophisticated jazz audience. I specialize in jazz standards and improvisational pieces that create an intimate, sophisticated atmosphere perfect for your venue.'
       );
       break;
-      
+
     case 'rock-venue':
       baseTemplate.body = baseTemplate.body.replace(
         'I believe my music would be a great fit for your venue and audience.',
         'I believe my high-energy performances would be a great fit for your venue and audience. I bring a dynamic stage presence and can guarantee an engaging show that will bring in crowds and create an exciting atmosphere.'
       );
       break;
-      
+
     case 'coffee-shop':
       baseTemplate.body = baseTemplate.body.replace(
         'I believe my music would be a great fit for your venue and audience.',
         'I believe my acoustic style would be perfect for creating a relaxed, comfortable atmosphere at your coffee shop. I specialize in background music that enhances the dining experience without overwhelming conversation.'
       );
       break;
-      
+
     case 'restaurant':
       baseTemplate.body = baseTemplate.body.replace(
         'I believe my music would be a great fit for your venue and audience.',
@@ -318,22 +349,28 @@ function applyTemplateStyle(template: any, templateId: string) {
   switch (templateId) {
     case 'casual-friendly':
       template.subject = `Hey ${template.subject.split(': ')[1]?.split(' - ')[0] || 'there'}! ${template.subject.split(': ')[1]?.split(' - ')[0] || 'I'} here`;
-      template.body = template.body.replace('Hi there,\n\nI hope this email finds you well!', 'Hi there!\n\nI hope you\'re having a great day!');
-      template.body = template.body.replace('Best regards,', 'Thanks for your time,');
+      template.body = template.body.replace(
+        'Hi there,\n\nI hope this email finds you well!',
+        "Hi there!\n\nI hope you're having a great day!"
+      );
+      template.body = template.body.replace(
+        'Best regards,',
+        'Thanks for your time,'
+      );
       break;
-      
+
     case 'data-driven':
       template.subject = `High-Engagement ${template.subject.split(': ')[1]?.split(' - ')[1] || 'Artist'} for ${template.subject.split(': ')[1]?.split(' - ')[0] || 'your venue'}`;
       template.body = template.body.replace(
         'A bit about me:',
-        'Here\'s what I bring to the table:'
+        "Here's what I bring to the table:"
       );
       template.body = template.body.replace(
-        '• Genre: ${artist.genre}\n• Location: ${artist.city}\n• Website: ${artist.website || \'Available upon request\'}',
+        "• Genre: ${artist.genre}\n• Location: ${artist.city}\n• Website: ${artist.website || 'Available upon request'}",
         '• ${artist.genre} artist with strong local following\n• Average 150+ attendees at local shows\n• 85% audience retention rate\n• Active social media presence with 5K+ followers\n• Professional sound and lighting setup'
       );
       break;
   }
 
   return template;
-} 
+}

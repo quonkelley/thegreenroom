@@ -17,7 +17,7 @@ class PerformanceMonitor {
     api: [],
     database: [],
     userInteractions: [],
-    errors: []
+    errors: [],
   };
 
   private maxMetrics = 1000; // Keep last 1000 metrics per category
@@ -33,7 +33,7 @@ class PerformanceMonitor {
         name: `${method} ${endpoint}`,
         duration,
         timestamp: new Date().toISOString(),
-        metadata: { endpoint, method, requestId }
+        metadata: { endpoint, method, requestId },
       });
     };
   }
@@ -48,7 +48,7 @@ class PerformanceMonitor {
         name: `${operation} ${table}`,
         duration,
         timestamp: new Date().toISOString(),
-        metadata: { operation, table }
+        metadata: { operation, table },
       });
     };
   }
@@ -59,7 +59,7 @@ class PerformanceMonitor {
       name: action,
       duration: 0, // User interactions don't have duration
       timestamp: new Date().toISOString(),
-      metadata: { component }
+      metadata: { component },
     });
   }
 
@@ -69,11 +69,11 @@ class PerformanceMonitor {
       name: error.name,
       duration: 0,
       timestamp: new Date().toISOString(),
-      metadata: { 
-        message: error.message, 
+      metadata: {
+        message: error.message,
         stack: error.stack,
-        context 
-      }
+        context,
+      },
     });
   }
 
@@ -123,7 +123,7 @@ class PerformanceMonitor {
       ...this.metrics.api,
       ...this.metrics.database,
       ...this.metrics.userInteractions,
-      ...this.metrics.errors
+      ...this.metrics.errors,
     ];
   }
 
@@ -141,19 +141,23 @@ class PerformanceMonitor {
 
   // Performance Analytics
   getAverageResponseTime(endpoint?: string): number {
-    const apiMetrics = endpoint 
+    const apiMetrics = endpoint
       ? this.metrics.api.filter(m => m.metadata?.endpoint === endpoint)
       : this.metrics.api;
-    
-    if (apiMetrics.length === 0) return 0;
-    
+
+    if (apiMetrics.length === 0) {
+      return 0;
+    }
+
     const total = apiMetrics.reduce((sum, metric) => sum + metric.duration, 0);
     return total / apiMetrics.length;
   }
 
-  getSlowestEndpoints(limit: number = 10): Array<{ endpoint: string; avgDuration: number }> {
+  getSlowestEndpoints(
+    limit: number = 10
+  ): Array<{ endpoint: string; avgDuration: number }> {
     const endpointStats = new Map<string, { total: number; count: number }>();
-    
+
     this.metrics.api.forEach(metric => {
       const endpoint = metric.metadata?.endpoint;
       if (endpoint) {
@@ -167,7 +171,7 @@ class PerformanceMonitor {
     return Array.from(endpointStats.entries())
       .map(([endpoint, stats]) => ({
         endpoint,
-        avgDuration: stats.total / stats.count
+        avgDuration: stats.total / stats.count,
       }))
       .sort((a, b) => b.avgDuration - a.avgDuration)
       .slice(0, limit);
@@ -180,9 +184,12 @@ class PerformanceMonitor {
   }
 
   // Memory Management
-  private recordMetric(category: keyof PerformanceData, metric: PerformanceMetric): void {
+  private recordMetric(
+    category: keyof PerformanceData,
+    metric: PerformanceMetric
+  ): void {
     this.metrics[category].push(metric);
-    
+
     // Keep only the last maxMetrics
     if (this.metrics[category].length > this.maxMetrics) {
       this.metrics[category] = this.metrics[category].slice(-this.maxMetrics);
@@ -190,7 +197,10 @@ class PerformanceMonitor {
   }
 
   private generateRequestId(): string {
-    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    return (
+      Math.random().toString(36).substring(2, 15) +
+      Math.random().toString(36).substring(2, 15)
+    );
   }
 
   // Clear metrics (useful for testing)
@@ -199,7 +209,7 @@ class PerformanceMonitor {
       api: [],
       database: [],
       userInteractions: [],
-      errors: []
+      errors: [],
     };
   }
 
@@ -212,4 +222,4 @@ class PerformanceMonitor {
 // Create singleton instance
 const performanceMonitor = new PerformanceMonitor();
 
-export default performanceMonitor; 
+export default performanceMonitor;

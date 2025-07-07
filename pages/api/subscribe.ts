@@ -13,7 +13,16 @@ export default async function handler(
   }
 
   try {
-    const { email, name, genre, city, bio, pricing, availability, social_links } = req.body;
+    const {
+      email,
+      name,
+      genre,
+      city,
+      bio,
+      pricing,
+      availability,
+      social_links,
+    } = req.body;
 
     if (!email) {
       return res.status(400).json({ error: 'Email is required' });
@@ -46,7 +55,7 @@ export default async function handler(
           availability: availability || '',
           social_links: social_links || {},
           profile_complete: false,
-        }
+        },
       ])
       .select()
       .single();
@@ -108,4 +117,4 @@ export default async function handler(
     console.error('Subscription error:', error);
     res.status(500).json({ error: 'Failed to subscribe. Please try again.' });
   }
-} 
+}

@@ -18,7 +18,17 @@ export interface AuthContextType {
   session: Session | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string, userData: any) => Promise<{ error: any }>;
+  signUp: (
+    email: string,
+    password: string,
+    userData: any
+  ) => Promise<{
+    error?: any;
+    success?: boolean;
+    message?: string;
+    requiresConfirmation?: boolean;
+    data?: any;
+  }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any }>;
 }
@@ -320,4 +330,4 @@ export interface OutreachStats {
   response_rate: number;
   positive_responses: number;
   negative_responses: number;
-} 
+}

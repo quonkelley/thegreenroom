@@ -6,7 +6,10 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -15,14 +18,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const { artist_id, email } = req.body;
 
     if (!artist_id || !email) {
-      return res.status(400).json({ error: 'Artist ID and email are required' });
+      return res
+        .status(400)
+        .json({ error: 'Artist ID and email are required' });
     }
 
     // Sample pitch templates
     const samplePitches = [
       {
         artist_id,
-        subject: "Booking Inquiry: Jazz Trio Available for Your Venue",
+        subject: 'Booking Inquiry: Jazz Trio Available for Your Venue',
         body: `Hi there!
 
 I'm reaching out about potential booking opportunities at your venue. I'm a jazz pianist leading a trio that specializes in smooth jazz and classic standards.
@@ -42,11 +47,11 @@ You can check out our music at [your website] and see some recent performances o
 Would love to discuss potential dates and see if we'd be a good fit for your venue!
 
 Best regards,
-[Your Name]`
+[Your Name]`,
       },
       {
         artist_id,
-        subject: "Rock Band Looking for Weekend Gigs",
+        subject: 'Rock Band Looking for Weekend Gigs',
         body: `Hello!
 
 My band and I are looking for weekend performance opportunities at your venue. We're a 4-piece rock band that covers everything from classic rock to modern indie hits.
@@ -66,11 +71,11 @@ Check out our latest videos on YouTube and our music on Spotify to get a feel fo
 Available for Friday and Saturday nights. Would love to chat about potential bookings!
 
 Thanks,
-[Your Name]`
+[Your Name]`,
       },
       {
         artist_id,
-        subject: "Acoustic Solo Artist - Perfect for Intimate Venues",
+        subject: 'Acoustic Solo Artist - Perfect for Intimate Venues',
         body: `Hi!
 
 I'm a singer-songwriter looking for intimate performance opportunities at your venue. My acoustic style is perfect for creating a relaxed, sophisticated atmosphere.
@@ -90,53 +95,53 @@ You can hear my music on Spotify and see some live performances on my Instagram.
 Would love to discuss how I could enhance the atmosphere at your venue!
 
 Best,
-[Your Name]`
-      }
+[Your Name]`,
+      },
     ];
 
     // Sample outreach campaign
     const sampleCampaign = {
       artist_id,
-      name: "Local Venue Outreach",
-      description: "Initial outreach to local venues in my area",
-      status: 'active'
+      name: 'Local Venue Outreach',
+      description: 'Initial outreach to local venues in my area',
+      status: 'active',
     };
 
     // Sample venues for outreach
     const sampleVenues = [
       {
-        name: "The Blue Note",
-        city: "New York",
-        state: "NY",
-        email: "booking@bluenote.com",
-        website: "https://bluenote.com",
+        name: 'The Blue Note',
+        city: 'New York',
+        state: 'NY',
+        email: 'booking@bluenote.com',
+        website: 'https://bluenote.com',
         capacity: 200,
-        genres: ["jazz", "blues", "soul"],
-        contact_person: "Sarah Johnson",
-        booking_email: "booking@bluenote.com"
+        genres: ['jazz', 'blues', 'soul'],
+        contact_person: 'Sarah Johnson',
+        booking_email: 'booking@bluenote.com',
       },
       {
-        name: "The Troubadour",
-        city: "Los Angeles", 
-        state: "CA",
-        email: "info@troubadour.com",
-        website: "https://troubadour.com",
+        name: 'The Troubadour',
+        city: 'Los Angeles',
+        state: 'CA',
+        email: 'info@troubadour.com',
+        website: 'https://troubadour.com',
         capacity: 500,
-        genres: ["rock", "indie", "folk"],
-        contact_person: "Mike Davis",
-        booking_email: "bookings@troubadour.com"
+        genres: ['rock', 'indie', 'folk'],
+        contact_person: 'Mike Davis',
+        booking_email: 'bookings@troubadour.com',
       },
       {
-        name: "The Basement",
-        city: "Nashville",
-        state: "TN", 
-        email: "bookings@thebasement.com",
-        website: "https://thebasement.com",
+        name: 'The Basement',
+        city: 'Nashville',
+        state: 'TN',
+        email: 'bookings@thebasement.com',
+        website: 'https://thebasement.com',
         capacity: 150,
-        genres: ["country", "folk", "americana"],
-        contact_person: "Lisa Thompson",
-        booking_email: "bookings@thebasement.com"
-      }
+        genres: ['country', 'folk', 'americana'],
+        contact_person: 'Lisa Thompson',
+        booking_email: 'bookings@thebasement.com',
+      },
     ];
 
     // Insert sample pitches
@@ -159,7 +164,9 @@ Best,
 
     if (campaignError) {
       console.error('Error creating sample campaign:', campaignError);
-      return res.status(500).json({ error: 'Failed to create sample campaign' });
+      return res
+        .status(500)
+        .json({ error: 'Failed to create sample campaign' });
     }
 
     // Insert sample venues (if they don't exist)
@@ -172,9 +179,7 @@ Best,
         .maybeSingle();
 
       if (!existingVenue) {
-        await supabase
-          .from('venues')
-          .insert([venue]);
+        await supabase.from('venues').insert([venue]);
       }
     }
 
@@ -183,27 +188,27 @@ Best,
       {
         campaign_id: campaign.id,
         artist_id,
-        venue_name: "The Blue Note",
-        venue_email: "booking@bluenote.com",
-        venue_city: "New York",
-        venue_website: "https://bluenote.com",
-        subject: "Booking Inquiry: Jazz Trio Available for Your Venue",
-        body: samplePitches[0].body,
+        venue_name: 'The Blue Note',
+        venue_email: 'booking@bluenote.com',
+        venue_city: 'New York',
+        venue_website: 'https://bluenote.com',
+        subject: 'Booking Inquiry: Jazz Trio Available for Your Venue',
+        body: samplePitches[0]?.body || '',
         status: 'draft',
-        notes: "Sample email - ready to customize and send"
+        notes: 'Sample email - ready to customize and send',
       },
       {
         campaign_id: campaign.id,
         artist_id,
-        venue_name: "The Troubadour", 
-        venue_email: "bookings@troubadour.com",
-        venue_city: "Los Angeles",
-        venue_website: "https://troubadour.com",
-        subject: "Rock Band Looking for Weekend Gigs",
-        body: samplePitches[1].body,
+        venue_name: 'The Troubadour',
+        venue_email: 'bookings@troubadour.com',
+        venue_city: 'Los Angeles',
+        venue_website: 'https://troubadour.com',
+        subject: 'Rock Band Looking for Weekend Gigs',
+        body: samplePitches[1]?.body || '',
         status: 'draft',
-        notes: "Sample email - ready to customize and send"
-      }
+        notes: 'Sample email - ready to customize and send',
+      },
     ];
 
     const { data: emails, error: emailsError } = await supabase
@@ -222,12 +227,11 @@ Best,
       data: {
         pitches: pitches.length,
         campaign: campaign.name,
-        emails: emails.length
-      }
+        emails: emails.length,
+      },
     });
-
   } catch (error) {
     console.error('Sample data creation error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
-} 
+}

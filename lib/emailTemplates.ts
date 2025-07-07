@@ -39,9 +39,9 @@ export const EMAIL_TEMPLATES: EmailTemplate[] = [
       {artistName}<br>
       {artistEmail}<br>
       {phone}</p>
-    `
+    `,
   },
-  
+
   {
     id: 'rock-venue-pitch',
     name: 'Rock Venue Pitch',
@@ -73,9 +73,9 @@ export const EMAIL_TEMPLATES: EmailTemplate[] = [
       {artistName}<br>
       {artistEmail}<br>
       {phone}</p>
-    `
+    `,
   },
-  
+
   {
     id: 'coffee-shop-acoustic',
     name: 'Coffee Shop Acoustic',
@@ -105,9 +105,9 @@ export const EMAIL_TEMPLATES: EmailTemplate[] = [
       {artistName}<br>
       {artistEmail}<br>
       {phone}</p>
-    `
+    `,
   },
-  
+
   {
     id: 'restaurant-background',
     name: 'Restaurant Background Music',
@@ -137,15 +137,15 @@ export const EMAIL_TEMPLATES: EmailTemplate[] = [
       {artistName}<br>
       {artistEmail}<br>
       {phone}</p>
-    `
+    `,
   },
-  
+
   {
     id: 'follow-up',
     name: 'Follow-up Email',
     subject: 'Following up - {artistName} Performance Inquiry',
     venueType: 'all',
-    description: 'Professional follow-up for venues that haven\'t responded',
+    description: "Professional follow-up for venues that haven't responded",
     content: `
       <p>Hi {venueName} Team,</p>
       
@@ -160,23 +160,26 @@ export const EMAIL_TEMPLATES: EmailTemplate[] = [
       <p>Best regards,<br>
       {artistName}<br>
       {artistEmail}</p>
-    `
-  }
+    `,
+  },
 ];
 
 export function getTemplatesByVenueType(venueType: string): EmailTemplate[] {
   if (venueType === 'all') {
     return EMAIL_TEMPLATES;
   }
-  return EMAIL_TEMPLATES.filter(template => 
-    template.venueType === venueType || template.venueType === 'all'
+  return EMAIL_TEMPLATES.filter(
+    template => template.venueType === venueType || template.venueType === 'all'
   );
 }
 
-export function replaceTemplateVariables(template: string, variables: Record<string, string>): string {
+export function replaceTemplateVariables(
+  template: string,
+  variables: Record<string, string>
+): string {
   let result = template;
   Object.entries(variables).forEach(([key, value]) => {
     result = result.replace(new RegExp(`{${key}}`, 'g'), value || '');
   });
   return result;
-} 
+}

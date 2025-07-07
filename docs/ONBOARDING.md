@@ -5,17 +5,20 @@ TheGreenRoom.ai uses a modern, contextual onboarding system that tracks user pro
 ## 🎯 **Key Features**
 
 ### **Active Step Tracking**
+
 - **Non-intrusive**: Modal won't show when user is actively working on a step
 - **Smart completion detection**: Only shows guidance when user completes a step
 - **Progress-based triggers**: Modal appears after step completion to guide to next step
 
 ### **Contextual Frequency Management**
+
 - **App start**: 2 hours between shows
 - **Page visit**: 30 minutes between shows
 - **Feature use**: 15 minutes between shows
 - **Step completion**: 5 minutes minimum between shows
 
 ### **Flexible Integration**
+
 - Easy to integrate into any component
 - Automatic state management
 - Cross-device persistence
@@ -105,19 +108,19 @@ The onboarding system tracks these steps:
 
 ```js
 // Mark a step as active (modal will hide)
-window.markStepActive('profile')
+window.markStepActive('profile');
 
 // Mark a step as completed (modal will show after 1 second)
-window.markStepCompleted('profile')
+window.markStepCompleted('profile');
 
 // Trigger onboarding with context
-window.showOnboardingWithContext('page-visit')
+window.showOnboardingWithContext('page-visit');
 
 // Reset everything
-window.resetOnboarding()
+window.resetOnboarding();
 
 // Reopen onboarding
-window.reopenOnboarding()
+window.reopenOnboarding();
 ```
 
 ### **Manual Testing**
@@ -182,12 +185,14 @@ const contextLimits = {
 ### **When to Use Step Tracking**
 
 ✅ **Do track**:
+
 - Form submissions
 - Profile completions
 - Feature usage
 - Data creation
 
 ❌ **Don't track**:
+
 - Page visits (use contextual triggers instead)
 - Minor interactions
 - Temporary states
@@ -219,8 +224,8 @@ Access analytics through the browser console:
 
 ```js
 // View onboarding state
-console.log(localStorage.getItem('onboarding_completed'))
-console.log(localStorage.getItem('onboarding_last_shown'))
+console.log(localStorage.getItem('onboarding_completed'));
+console.log(localStorage.getItem('onboarding_last_shown'));
 ```
 
 ## 🐛 **Troubleshooting**
@@ -228,21 +233,23 @@ console.log(localStorage.getItem('onboarding_last_shown'))
 ### **Modal Not Showing**
 
 1. Check if user has completed onboarding:
+
    ```js
-   localStorage.getItem('onboarding_completed') === 'true'
+   localStorage.getItem('onboarding_completed') === 'true';
    ```
 
 2. Check if step is marked as active:
+
    ```js
    // Should be null when not actively working
-   console.log('Active step:', activeStepId)
+   console.log('Active step:', activeStepId);
    ```
 
 3. Check frequency limits:
    ```js
    // Should be past the delay time
-   const lastShown = localStorage.getItem('onboarding_last_shown')
-   console.log('Time since last shown:', Date.now() - parseInt(lastShown))
+   const lastShown = localStorage.getItem('onboarding_last_shown');
+   console.log('Time since last shown:', Date.now() - parseInt(lastShown));
    ```
 
 ### **Modal Showing Too Often**

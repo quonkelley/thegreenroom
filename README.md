@@ -15,11 +15,13 @@ A stunning, modern SaaS landing page for TheGreenRoom.ai - an AI-powered assista
 ## 🚀 Quick Start
 
 1. **Install dependencies:**
+
    ```bash
    npm install
    ```
 
 2. **Start the development server:**
+
    ```bash
    npm run dev
    ```
@@ -97,6 +99,7 @@ This project is open source and available under the [MIT License](LICENSE).
 ### Step 3: Test Email Signup
 
 1. Start the dev servers:
+
 ```bash
 npm run dev
 ```
@@ -108,11 +111,13 @@ npm run dev
 The site is configured for GitHub Pages deployment:
 
 1. Build the project:
+
 ```bash
 npm run build
 ```
 
 2. Deploy to GitHub Pages:
+
 ```bash
 npm run deploy
 ```
@@ -139,30 +144,36 @@ TheGreenRoom/
 ## 🎯 Customization
 
 ### Colors and Styling
+
 - Edit `tailwind.config.js` to customize the color scheme
 - Modify `src/index.css` for additional custom styles
 
 ### Content
+
 - Update text content in `src/App.js`
 - Replace images and icons as needed
 
 ### Email Integration
+
 - Modify `src/emailService.js` for different email service providers
 - Update form fields and validation as needed
 
 ## 🤔 Troubleshooting
 
 ### Email Forms Not Working
+
 - Ensure Resend credentials are correctly configured
 - Check browser console for JavaScript errors
 - Verify your Resend account is active and accepting requests
 
 ### Build Errors
+
 - Clear `node_modules` and reinstall: `rm -rf node_modules && npm install`
 - Check for syntax errors in React components
 - Ensure all dependencies are installed
 
 ### Deployment Issues
+
 - Verify `homepage` field in `package.json` matches your GitHub Pages URL
 - Check that the `gh-pages` branch exists in your repository
 - Clear browser cache after deployment
@@ -178,9 +189,10 @@ TheGreenRoom/
 ## 🤖 Support
 
 For questions or issues:
+
 - Check the troubleshooting section above
 - Open an issue on GitHub
 
 ---
 
-Built with ❤️ for the music industry 
+Built with ❤️ for the music industry

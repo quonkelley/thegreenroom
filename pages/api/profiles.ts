@@ -1,64 +1,112 @@
-import { NextApiRequest, NextApiResponse } from 'next';
 import { createClient } from '@supabase/supabase-js';
-import { ArtistProfile } from '../../types';
+import { NextApiRequest, NextApiResponse } from 'next';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  // Set CORS headers for mobile compatibility
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
   if (req.method === 'GET') {
     try {
-      const { email } = req.query;
-      
-      if (!email) {
-        return res.status(400).json({ error: 'Email is required' });
+      const { user_id } = req.query;
+
+      if (!user_id) {
+        return res.status(400).json({
+          success: false,
+          error: 'User ID is required',
+        });
       }
 
       const { data: profile, error } = await supabase
         .from('artist_profiles')
         .select('*')
-        .eq('email', email)
-        .single();
+        .eq('user_id', user_id)
+        .maybeSingle();
 
       if (error) {
         console.error('Profile fetch error:', error);
-        return res.status(500).json({ error: 'Failed to fetch profile' });
+        return res.status(500).json({
+          success: false,
+          error: 'Failed to fetch profile',
+        });
       }
 
       if (!profile) {
-        return res.status(404).json({ error: 'Profile not found' });
+        return res.status(200).json({
+          success: true,
+          profile: null,
+          message: 'No profile found for this user',
+        });
       }
 
-      res.status(200).json({ success: true, data: profile });
+      res.status(200).json({
+        success: true,
+        profile: profile,
+      });
     } catch (error) {
       console.error('Profile API error:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+      });
     }
   } else if (req.method === 'POST') {
     try {
-      const { 
-        name, 
-        genre, 
-        city, 
-        state, 
-        country, 
-        website, 
-        pricing, 
-        availability, 
-        bio, 
-        email, 
-        phone, 
-        press_kit_url, 
+      // Validate request body exists
+      if (!req.body || typeof req.body !== 'object') {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid request body',
+        });
+      }
+
+      const {
+        name,
+        genre,
+        city,
+        state,
+        country,
+        website,
+        pricing,
+        availability,
+        bio,
+        email,
+        phone,
+        press_kit_url,
         social_links,
-        user_id 
+        user_id,
       } = req.body;
 
       // Validate required fields
       if (!name || !genre || !city || !email) {
-        return res.status(400).json({ 
-          error: 'Missing required fields: name, genre, city, and email are required' 
+        return res.status(400).json({
+          success: false,
+          error:
+            'Missing required fields: name, genre, city, and email are required',
+        });
+      }
+
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid email format',
         });
       }
 
@@ -81,11 +129,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       };
 
       // Check if profile already exists
-      const { data: existingProfile } = await supabase
+      const { data: existingProfile, error: checkError } = await supabase
         .from('artist_profiles')
         .select('id')
         .eq('email', email)
         .maybeSingle();
+
+      if (checkError) {
+        console.error('Profile check error:', checkError);
+        return res.status(500).json({
+          success: false,
+          error: 'Failed to check existing profile',
+        });
+      }
 
       let result;
       if (existingProfile) {
@@ -107,24 +163,44 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       if (result.error) {
         console.error('Profile save error:', result.error);
-        return res.status(500).json({ error: 'Failed to save profile' });
+        return res.status(500).json({
+          success: false,
+          error: 'Failed to save profile',
+        });
       }
 
-      res.status(200).json({ 
-        success: true, 
+      // Ensure we always return a valid JSON response
+      res.status(200).json({
+        success: true,
         data: result.data,
-        message: existingProfile ? 'Profile updated successfully' : 'Profile created successfully'
+        message: existingProfile
+          ? 'Profile updated successfully'
+          : 'Profile created successfully',
       });
     } catch (error) {
       console.error('Profile API error:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+      });
     }
   } else if (req.method === 'PUT') {
     try {
+      // Validate request body exists
+      if (!req.body || typeof req.body !== 'object') {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid request body',
+        });
+      }
+
       const { id, ...updateData } = req.body;
-      
+
       if (!id) {
-        return res.status(400).json({ error: 'Profile ID is required' });
+        return res.status(400).json({
+          success: false,
+          error: 'Profile ID is required',
+        });
       }
 
       const { data: profile, error } = await supabase
@@ -136,20 +212,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       if (error) {
         console.error('Profile update error:', error);
-        return res.status(500).json({ error: 'Failed to update profile' });
+        return res.status(500).json({
+          success: false,
+          error: 'Failed to update profile',
+        });
       }
 
-      res.status(200).json({ 
-        success: true, 
+      res.status(200).json({
+        success: true,
         data: profile,
-        message: 'Profile updated successfully'
+        message: 'Profile updated successfully',
       });
     } catch (error) {
       console.error('Profile API error:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+      });
     }
   } else {
-    res.setHeader('Allow', ['GET', 'POST', 'PUT']);
-    res.status(405).json({ error: `Method ${req.method} Not Allowed` });
+    res.setHeader('Allow', ['GET', 'POST', 'PUT', 'OPTIONS']);
+    res.status(405).json({
+      success: false,
+      error: `Method ${req.method} Not Allowed`,
+    });
   }
-} 
+}

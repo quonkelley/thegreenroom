@@ -7,18 +7,22 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   if (req.method === 'GET') {
     try {
       const { artist_id } = req.query;
-      
+
       if (!artist_id) {
         return res.status(400).json({ error: 'Artist ID is required' });
       }
 
       // Get outreach stats using the database function
-      const { data: stats, error } = await supabase
-        .rpc('get_outreach_stats', { artist_uuid: artist_id });
+      const { data: stats, error } = await supabase.rpc('get_outreach_stats', {
+        artist_uuid: artist_id,
+      });
 
       if (error) {
         console.error('Stats fetch error:', error);
@@ -67,7 +71,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       // Calculate additional metrics
       const totalCampaigns = campaigns?.length || 0;
-      const activeCampaigns = campaigns?.filter(c => c.status === 'active').length || 0;
+      const activeCampaigns =
+        campaigns?.filter(c => c.status === 'active').length || 0;
       const pendingFollowups = followups?.length || 0;
 
       // Get status breakdown
@@ -76,15 +81,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         sent: recentEmails?.filter(e => e.status === 'sent').length || 0,
         opened: recentEmails?.filter(e => e.status === 'opened').length || 0,
         replied: recentEmails?.filter(e => e.status === 'replied').length || 0,
-        bounced: recentEmails?.filter(e => e.status === 'bounced').length || 0
+        bounced: recentEmails?.filter(e => e.status === 'bounced').length || 0,
       };
 
       // Get response type breakdown
       const responseBreakdown = {
-        positive: recentEmails?.filter(e => e.response_type === 'positive').length || 0,
-        negative: recentEmails?.filter(e => e.response_type === 'negative').length || 0,
-        neutral: recentEmails?.filter(e => e.response_type === 'neutral').length || 0,
-        no_response: recentEmails?.filter(e => e.response_type === 'no_response').length || 0
+        positive:
+          recentEmails?.filter(e => e.response_type === 'positive').length || 0,
+        negative:
+          recentEmails?.filter(e => e.response_type === 'negative').length || 0,
+        neutral:
+          recentEmails?.filter(e => e.response_type === 'neutral').length || 0,
+        no_response:
+          recentEmails?.filter(e => e.response_type === 'no_response').length ||
+          0,
       };
 
       const analytics = {
@@ -95,19 +105,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           replied_emails: 0,
           response_rate: 0,
           positive_responses: 0,
-          negative_responses: 0
+          negative_responses: 0,
         },
         campaigns: {
           total: totalCampaigns,
-          active: activeCampaigns
+          active: activeCampaigns,
         },
         followups: {
-          pending: pendingFollowups
+          pending: pendingFollowups,
         },
         statusBreakdown,
         responseBreakdown,
         recentEmails: recentEmails || [],
-        upcomingFollowups: followups || []
+        upcomingFollowups: followups || [],
       };
 
       res.status(200).json(analytics);
@@ -118,4 +128,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   } else {
     res.status(405).json({ error: 'Method not allowed' });
   }
-} 
+}

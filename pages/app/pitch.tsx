@@ -26,14 +26,17 @@ import {
   Star,
   Target,
   TrendingUp,
-  X
+  X,
 } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useCallback, useEffect, useState } from 'react';
 import AppNavigation from '../../components/AppNavigation';
 import { ProtectedRoute } from '../../components/ProtectedRoute';
 import { useAuth } from '../../lib/auth';
-import { getTemplatesByVenueType, replaceTemplateVariables } from '../../lib/emailTemplates';
+import {
+  getTemplatesByVenueType,
+  replaceTemplateVariables,
+} from '../../lib/emailTemplates';
 import { supabase } from '../../lib/supabaseClient';
 
 interface Pitch {
@@ -81,33 +84,73 @@ const VENUE_TYPES: VenueType[] = [
     name: 'Jazz Club',
     description: 'Intimate venues focused on jazz and sophisticated music',
     icon: Music,
-    characteristics: ['Intimate atmosphere', 'Sophisticated audience', 'Acoustic focus', 'Evening performances'],
-    tips: ['Emphasize musical sophistication', 'Mention jazz standards', 'Highlight acoustic quality', 'Reference jazz history']
+    characteristics: [
+      'Intimate atmosphere',
+      'Sophisticated audience',
+      'Acoustic focus',
+      'Evening performances',
+    ],
+    tips: [
+      'Emphasize musical sophistication',
+      'Mention jazz standards',
+      'Highlight acoustic quality',
+      'Reference jazz history',
+    ],
   },
   {
     id: 'rock-venue',
     name: 'Rock Venue',
     description: 'Larger venues for rock, indie, and high-energy performances',
     icon: Building,
-    characteristics: ['High energy', 'Younger audience', 'Full band setup', 'Weekend focus'],
-    tips: ['Highlight energy and crowd engagement', 'Mention social media following', 'Emphasize stage presence', 'Include video links']
+    characteristics: [
+      'High energy',
+      'Younger audience',
+      'Full band setup',
+      'Weekend focus',
+    ],
+    tips: [
+      'Highlight energy and crowd engagement',
+      'Mention social media following',
+      'Emphasize stage presence',
+      'Include video links',
+    ],
   },
   {
     id: 'coffee-shop',
     name: 'Coffee Shop',
     description: 'Intimate settings for acoustic and background music',
     icon: Coffee,
-    characteristics: ['Intimate setting', 'Background music', 'Daytime/evening', 'Acoustic focus'],
-    tips: ['Emphasize acoustic quality', 'Mention background music experience', 'Highlight versatility', 'Include soft volume capability']
+    characteristics: [
+      'Intimate setting',
+      'Background music',
+      'Daytime/evening',
+      'Acoustic focus',
+    ],
+    tips: [
+      'Emphasize acoustic quality',
+      'Mention background music experience',
+      'Highlight versatility',
+      'Include soft volume capability',
+    ],
   },
   {
     id: 'restaurant',
     name: 'Restaurant',
     description: 'Dining establishments seeking ambient music',
     icon: Star,
-    characteristics: ['Ambient music', 'Dining atmosphere', 'Evening focus', 'Professional demeanor'],
-    tips: ['Emphasize ambient quality', 'Mention dining experience', 'Highlight professionalism', 'Include background music samples']
-  }
+    characteristics: [
+      'Ambient music',
+      'Dining atmosphere',
+      'Evening focus',
+      'Professional demeanor',
+    ],
+    tips: [
+      'Emphasize ambient quality',
+      'Mention dining experience',
+      'Highlight professionalism',
+      'Include background music samples',
+    ],
+  },
 ];
 
 const PITCH_TEMPLATES = [
@@ -138,7 +181,7 @@ Looking forward to hearing from you!
 Best regards,
 {artist_name}
 
-{website_text}`
+{website_text}`,
   },
   {
     id: 'casual-friendly',
@@ -160,7 +203,7 @@ What do you think? Would love to grab a coffee or hop on a call to discuss possi
 Thanks for your time,
 {artist_name}
 
-{website_text}`
+{website_text}`,
   },
   {
     id: 'data-driven',
@@ -189,8 +232,8 @@ Would love to schedule a call to discuss how we can create a successful partners
 Best regards,
 {artist_name}
 
-{website_text}`
-  }
+{website_text}`,
+  },
 ];
 
 export default function PitchGenerator() {
@@ -221,10 +264,14 @@ export default function PitchGenerator() {
   const [emailSuccess, setEmailSuccess] = useState('');
   const [emailError, setEmailError] = useState('');
   const [showPreview, setShowPreview] = useState(false);
-  const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile' | 'email'>('desktop');
+  const [previewMode, setPreviewMode] = useState<
+    'desktop' | 'mobile' | 'email'
+  >('desktop');
 
   const fetchProfile = useCallback(async () => {
-    if (!user?.email) return;
+    if (!user?.email) {
+      return;
+    }
 
     setProfileLoading(true);
     try {
@@ -236,7 +283,9 @@ export default function PitchGenerator() {
 
       if (error) {
         console.error('Failed to fetch profile:', error);
-        setError('Failed to load your profile. Please complete your profile first.');
+        setError(
+          'Failed to load your profile. Please complete your profile first.'
+        );
       } else {
         setProfile(data);
       }
@@ -249,7 +298,9 @@ export default function PitchGenerator() {
   }, [user?.email]);
 
   const loadPitch = useCallback(async () => {
-    if (!profile) return;
+    if (!profile) {
+      return;
+    }
 
     setLoading(true);
     setError('');
@@ -271,10 +322,14 @@ export default function PitchGenerator() {
   }, [profile]);
 
   const loadPitchHistory = useCallback(async () => {
-    if (!profile) return;
+    if (!profile) {
+      return;
+    }
 
     try {
-      const response = await fetch(`/api/pitches/history?artist_id=${profile.id}`);
+      const response = await fetch(
+        `/api/pitches/history?artist_id=${profile.id}`
+      );
       const data = await response.json();
 
       if (response.ok) {
@@ -309,19 +364,33 @@ export default function PitchGenerator() {
       const venueEmail = urlParams.get('email');
       const venueType = urlParams.get('venueType');
 
-      if (venueName) setVenueName(venueName);
-      if (venueCity) setVenueCity(venueCity);
-      if (venueEmail) setVenueEmail(venueEmail);
-      if (venueType) setSelectedVenueType(venueType);
+      if (venueName) {
+        setVenueName(venueName);
+      }
+      if (venueCity) {
+        setVenueCity(venueCity);
+      }
+      if (venueEmail) {
+        setVenueEmail(venueEmail);
+      }
+      if (venueType) {
+        setSelectedVenueType(venueType);
+      }
 
       // Auto-select venue type based on venue name or city if not provided
       if (!venueType && (venueName || venueCity)) {
         const searchTerm = (venueName + ' ' + venueCity).toLowerCase();
         if (searchTerm.includes('jazz') || searchTerm.includes('blue')) {
           setSelectedVenueType('jazz-club');
-        } else if (searchTerm.includes('coffee') || searchTerm.includes('cafe')) {
+        } else if (
+          searchTerm.includes('coffee') ||
+          searchTerm.includes('cafe')
+        ) {
           setSelectedVenueType('coffee-shop');
-        } else if (searchTerm.includes('restaurant') || searchTerm.includes('bar')) {
+        } else if (
+          searchTerm.includes('restaurant') ||
+          searchTerm.includes('bar')
+        ) {
           setSelectedVenueType('restaurant');
         } else {
           setSelectedVenueType('rock-venue');
@@ -352,7 +421,7 @@ export default function PitchGenerator() {
           venue_name: venueName,
           venue_city: venueCity,
           venue_email: venueEmail,
-          status: currentPitch?.status || 'draft'
+          status: currentPitch?.status || 'draft',
         }),
       });
 
@@ -375,7 +444,9 @@ export default function PitchGenerator() {
   };
 
   const handleGenerateDraft = async () => {
-    if (!profile) return;
+    if (!profile) {
+      return;
+    }
 
     setLoading(true);
     setError('');
@@ -390,9 +461,9 @@ export default function PitchGenerator() {
           venue_info: {
             name: venueName || 'your venue',
             city: venueCity || 'your city',
-            type: selectedVenueType
+            type: selectedVenueType,
           },
-          template_id: selectedTemplate
+          template_id: selectedTemplate,
         }),
       });
 
@@ -415,34 +486,13 @@ export default function PitchGenerator() {
   };
 
   const applyTemplate = (template: any) => {
-    if (!profile) return;
+    if (!profile) {
+      return;
+    }
 
-    let templateSubject = template.subject;
-    let templateBody = template.body;
-
-    // Replace placeholders with actual data
-    const replacements = {
-      '{artist_name}': profile.name,
-      '{genre}': profile.genre,
-      '{city}': profile.city,
-      '{venue_name}': venueName || 'your venue',
-      '{venue_city}': venueCity || 'your city',
-      '{website}': profile.website || 'my website',
-      '{social_links_text}': profile.social_links && Object.keys(profile.social_links).length > 0
-        ? `You can check out my music and social media presence at: ${Object.values(profile.social_links).join(', ')}`
-        : '',
-      '{website_text}': profile.website ? `Website: ${profile.website}` : ''
-    };
-
-    Object.entries(replacements).forEach(([placeholder, value]) => {
-      templateSubject = templateSubject.replace(new RegExp(placeholder, 'g'), value);
-      templateBody = templateBody.replace(new RegExp(placeholder, 'g'), value);
-    });
-
-    setSubject(templateSubject);
-    setBody(templateBody);
+    setSubject(template.subject);
+    setBody(template.body);
     setSelectedTemplate(template.id);
-    setShowTemplateLibrary(false);
   };
 
   const loadPitchFromHistory = (pitch: Pitch) => {
@@ -467,36 +517,10 @@ export default function PitchGenerator() {
       setError('Please fill in venue name and recipient email');
       return;
     }
-
-    // Auto-fill email recipient if venue email is available
-    if (venueEmail && !emailRecipient) {
-      setEmailRecipient(venueEmail);
+    if (venueEmail && venueEmail !== emailRecipient) {
+      setError('Venue email and recipient email must match');
+      return;
     }
-
-    // Prepare email content with template variables
-    const variables = {
-      artistName: profile?.name || '',
-      venueName: venueName,
-      venueCity: venueCity,
-      genre: profile?.genre || '',
-      city: profile?.city || '',
-      website: profile?.website || '',
-      social_links_text: profile?.social_links ? Object.values(profile.social_links).join(', ') : '',
-      website_text: profile?.website ? `Website: ${profile.website}` : '',
-      location: profile?.city || '',
-      influences: 'various artists',
-      experience: '5',
-      audienceSize: '100-150',
-      availability: 'weekends and weekdays',
-      energy: 'high',
-      setLength: '45-60',
-      highlights: 'energetic performances and crowd engagement',
-      bookingPeriod: 'the next few months',
-      phone: profile?.social_links?.phone || ''
-    };
-
-    setEmailSubject(replaceTemplateVariables(subject, variables));
-    setEmailContent(replaceTemplateVariables(body, variables));
     setShowEmailModal(true);
   };
 
@@ -523,7 +547,7 @@ export default function PitchGenerator() {
           venueName: venueName,
           artistName: profile?.name,
           artistEmail: user?.email,
-          venueEmail: emailRecipient
+          venueEmail: emailRecipient,
         }),
       });
 
@@ -558,7 +582,9 @@ export default function PitchGenerator() {
       genre: profile?.genre || '',
       city: profile?.city || '',
       website: profile?.website || '',
-      social_links_text: profile?.social_links ? Object.values(profile.social_links).join(', ') : '',
+      social_links_text: profile?.social_links
+        ? Object.values(profile.social_links).join(', ')
+        : '',
       website_text: profile?.website ? `Website: ${profile.website}` : '',
       location: profile?.city || '',
       influences: 'various artists',
@@ -569,7 +595,7 @@ export default function PitchGenerator() {
       setLength: '45-60',
       highlights: 'energetic performances and crowd engagement',
       bookingPeriod: 'the next few months',
-      phone: profile?.social_links?.phone || ''
+      phone: profile?.social_links?.phone || '',
     };
 
     setEmailSubject(replaceTemplateVariables(template.subject, variables));
@@ -580,21 +606,21 @@ export default function PitchGenerator() {
     { id: 'generator', label: 'Generator', icon: Sparkles },
     { id: 'preview', label: 'Preview', icon: Eye },
     { id: 'templates', label: 'Templates', icon: BookOpen },
-    { id: 'history', label: 'History', icon: History }
+    { id: 'history', label: 'History', icon: History },
   ];
 
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'draft':
-        return <Edit3 className="w-4 h-4 text-gray-500" />;
+        return <Edit3 className='w-4 h-4 text-gray-500' />;
       case 'sent':
-        return <CheckCircle className="w-4 h-4 text-green-500" />;
+        return <CheckCircle className='w-4 h-4 text-green-500' />;
       case 'scheduled':
-        return <ClockIcon className="w-4 h-4 text-blue-500" />;
+        return <ClockIcon className='w-4 h-4 text-blue-500' />;
       case 'archived':
-        return <Archive className="w-4 h-4 text-gray-400" />;
+        return <Archive className='w-4 h-4 text-gray-400' />;
       default:
-        return <AlertCircle className="w-4 h-4 text-yellow-500" />;
+        return <AlertCircle className='w-4 h-4 text-yellow-500' />;
     }
   };
 
@@ -629,10 +655,14 @@ export default function PitchGenerator() {
   };
 
   const generatePreviewContent = () => {
-    if (!profile) return { subject: '', body: '' };
+    if (!profile) {
+      return { subject: '', body: '' };
+    }
 
     const template = PITCH_TEMPLATES.find(t => t.id === selectedTemplate);
-    if (!template) return { subject: subject, body: body };
+    if (!template) {
+      return { subject: subject, body: body };
+    }
 
     const variables = {
       artist_name: profile.name,
@@ -641,16 +671,26 @@ export default function PitchGenerator() {
       venue_name: venueName || '{venue_name}',
       venue_city: venueCity || '{venue_city}',
       website: profile.website || '{website}',
-      social_links_text: profile.social_links ? Object.entries(profile.social_links).map(([platform, url]) => `${platform}: ${url}`).join(', ') : '{social_links}',
-      website_text: profile.website ? `\n${profile.website}` : ''
+      social_links_text: profile.social_links
+        ? Object.entries(profile.social_links)
+            .map(([platform, url]) => `${platform}: ${url}`)
+            .join(', ')
+        : '{social_links}',
+      website_text: profile.website ? `\n${profile.website}` : '',
     };
 
-    const previewSubject = template.subject.replace(/\{(\w+)\}/g, (match, key) => variables[key as keyof typeof variables] || match);
-    const previewBody = template.body.replace(/\{(\w+)\}/g, (match, key) => variables[key as keyof typeof variables] || match);
+    const previewSubject = template.subject.replace(
+      /\{(\w+)\}/g,
+      (match, key) => variables[key as keyof typeof variables] || match
+    );
+    const previewBody = template.body.replace(
+      /\{(\w+)\}/g,
+      (match, key) => variables[key as keyof typeof variables] || match
+    );
 
     return {
       subject: previewSubject,
-      body: previewBody
+      body: previewBody,
     };
   };
 
@@ -704,26 +744,39 @@ export default function PitchGenerator() {
     }
   };
 
-  const updatePitchStatus = async (pitchId: string, status: 'draft' | 'sent' | 'archived' | 'scheduled') => {
+  const updatePitchStatus = async (
+    pitchId: string,
+    status: 'draft' | 'sent' | 'archived' | 'scheduled'
+  ) => {
     try {
       const { error } = await supabase
         .from('pitches')
         .update({
           status,
           updated_at: new Date().toISOString(),
-          ...(status === 'sent' ? { sent_at: new Date().toISOString() } : {})
+          ...(status === 'sent' ? { sent_at: new Date().toISOString() } : {}),
         })
         .eq('id', pitchId);
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
 
       // Update local state
-      setPitchHistory(prev => prev.map(pitch =>
-        pitch.id === pitchId ? { ...pitch, status, updated_at: new Date().toISOString() } : pitch
-      ));
+      setPitchHistory(prev =>
+        prev.map(pitch =>
+          pitch.id === pitchId
+            ? { ...pitch, status, updated_at: new Date().toISOString() }
+            : pitch
+        )
+      );
 
       if (currentPitch?.id === pitchId) {
-        setCurrentPitch(prev => prev ? { ...prev, status, updated_at: new Date().toISOString() } : null);
+        setCurrentPitch(prev =>
+          prev
+            ? { ...prev, status, updated_at: new Date().toISOString() }
+            : null
+        );
       }
 
       setSuccess(`Pitch status updated to ${getStatusText(status)}`);
@@ -737,10 +790,10 @@ export default function PitchGenerator() {
 
   if (profileLoading) {
     return (
-      <div className="max-w-7xl mx-auto py-12 px-4">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading your profile...</p>
+      <div className='max-w-7xl mx-auto py-12 px-4'>
+        <div className='text-center'>
+          <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto'></div>
+          <p className='mt-4 text-gray-600'>Loading your profile...</p>
         </div>
       </div>
     );
@@ -748,37 +801,48 @@ export default function PitchGenerator() {
 
   if (!profile) {
     return (
-      <div className="max-w-7xl mx-auto py-12 px-4">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Profile Required</h2>
-          <p className="text-gray-600 mb-6">You need to complete your artist profile before using the pitch generator.</p>
-          <Link
-            href="/app/profile"
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
-          >
-            Complete Profile
-          </Link>
+      <ProtectedRoute>
+        <div className='min-h-screen bg-gray-50 flex items-center justify-center'>
+          <div className='bg-white rounded-xl shadow-lg p-12 text-center'>
+            <h2 className='text-2xl font-bold mb-4 text-gray-900'>
+              Complete Your Profile
+            </h2>
+            <p className='text-gray-700 mb-6'>
+              You need to complete your artist profile before using the pitch
+              generator.
+            </p>
+            <Link
+              href='/app/profile'
+              className='bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors'
+            >
+              Complete Profile
+            </Link>
+          </div>
         </div>
-      </div>
+      </ProtectedRoute>
     );
   }
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gray-50">
+      <div className='min-h-screen bg-gray-50'>
         <AppNavigation />
-        <div className="max-w-7xl mx-auto py-8 px-4">
+        <div className='max-w-7xl mx-auto py-8 px-4'>
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Pitch Generator</h1>
-            <p className="text-gray-600">Create compelling booking pitches with AI assistance</p>
+          <div className='mb-8'>
+            <h1 className='text-3xl font-bold text-gray-900 mb-2'>
+              Pitch Generator
+            </h1>
+            <p className='text-gray-600'>
+              Create compelling booking pitches with AI assistance
+            </p>
           </div>
 
           {/* Tabs */}
-          <div className="bg-white rounded-xl shadow-lg border border-gray-100 mb-8">
-            <div className="border-b border-gray-200">
-              <nav className="flex space-x-8 px-6">
-                {tabs.map((tab) => (
+          <div className='bg-white rounded-xl shadow-lg border border-gray-100 mb-8'>
+            <div className='border-b border-gray-200'>
+              <nav className='flex space-x-8 px-6'>
+                {tabs.map(tab => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
@@ -788,172 +852,246 @@ export default function PitchGenerator() {
                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                     }`}
                   >
-                    <tab.icon className="w-4 h-4" />
+                    <tab.icon className='w-4 h-4' />
                     {tab.label}
                   </button>
                 ))}
               </nav>
             </div>
 
-            <div className="p-6">
+            <div className='p-6'>
               {/* Generator Tab */}
               {activeTab === 'generator' && (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
                   {/* Profile Summary */}
-                  <div className="lg:col-span-1">
-                    <div className="bg-gray-50 rounded-xl p-6">
-                      <h2 className="text-xl font-bold mb-4 text-gray-900">Profile Summary</h2>
-                      <div className="mb-2 font-medium text-gray-900">{profile.name}</div>
-                      <div className="mb-2 text-gray-600">{profile.genre} • {profile.city}</div>
+                  <div className='lg:col-span-1'>
+                    <div className='bg-gray-50 rounded-xl p-6'>
+                      <h2 className='text-xl font-bold mb-4 text-gray-900'>
+                        Profile Summary
+                      </h2>
+                      <div className='mb-2 font-medium text-gray-900'>
+                        {profile.name}
+                      </div>
+                      <div className='mb-2 text-gray-600'>
+                        {profile.genre} • {profile.city}
+                      </div>
                       {profile.website && (
-                        <div className="mb-2">
-                          <a href={profile.website} className="text-blue-600 hover:text-blue-500 underline" target="_blank" rel="noopener noreferrer">Website</a>
+                        <div className='mb-2'>
+                          <a
+                            href={profile.website}
+                            className='text-blue-600 hover:text-blue-500 underline'
+                            target='_blank'
+                            rel='noopener noreferrer'
+                          >
+                            Website
+                          </a>
                         </div>
                       )}
-                      {profile.social_links && Object.keys(profile.social_links).length > 0 && (
-                        <div className="mb-2">
-                          {Object.entries(profile.social_links).map(([type, url]) => (
-                            <a key={type} href={url as string} className="text-purple-600 hover:text-purple-500 underline mr-2" target="_blank" rel="noopener noreferrer">{type}</a>
-                          ))}
-                        </div>
-                      )}
+                      {profile.social_links &&
+                        Object.keys(profile.social_links).length > 0 && (
+                          <div className='mb-2'>
+                            {Object.entries(profile.social_links).map(
+                              ([type, url]) => (
+                                <a
+                                  key={type}
+                                  href={url as string}
+                                  className='text-purple-600 hover:text-purple-500 underline mr-2'
+                                  target='_blank'
+                                  rel='noopener noreferrer'
+                                >
+                                  {type}
+                                </a>
+                              )
+                            )}
+                          </div>
+                        )}
                       {profile.bio && (
-                        <div className="mt-4 p-3 bg-white rounded-lg">
-                          <p className="text-gray-700 text-sm">{profile.bio}</p>
+                        <div className='mt-4 p-3 bg-white rounded-lg'>
+                          <p className='text-gray-700 text-sm'>{profile.bio}</p>
                         </div>
                       )}
                     </div>
                   </div>
 
                   {/* Pitch Editor */}
-                  <div className="lg:col-span-2">
-                    <div className="bg-white rounded-xl p-6 border border-gray-200">
-                      <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-xl font-bold">Create Your Pitch</h2>
+                  <div className='lg:col-span-2'>
+                    <div className='bg-white rounded-xl p-6 border border-gray-200'>
+                      <div className='flex items-center justify-between mb-4'>
+                        <h2 className='text-xl font-bold'>Create Your Pitch</h2>
                         {currentPitch && (
-                          <div className="text-sm text-gray-500">
-                            Last saved: {new Date(currentPitch.updated_at).toLocaleDateString()}
+                          <div className='text-sm text-gray-500'>
+                            Last saved:{' '}
+                            {new Date(
+                              currentPitch.updated_at
+                            ).toLocaleDateString()}
                           </div>
                         )}
                       </div>
 
-                      {success && <div className="mb-4 text-green-700 font-medium bg-green-50 p-3 rounded border border-green-200">{success}</div>}
-                      {error && <div className="mb-4 text-red-700 font-medium bg-red-50 p-3 rounded border border-red-200">{error}</div>}
+                      {success && (
+                        <div className='mb-4 text-green-700 font-medium bg-green-50 p-3 rounded border border-green-200'>
+                          {success}
+                        </div>
+                      )}
+                      {error && (
+                        <div className='mb-4 text-red-700 font-medium bg-red-50 p-3 rounded border border-red-200'>
+                          {error}
+                        </div>
+                      )}
 
                       {/* Venue Information */}
-                      <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-                        <h3 className="font-medium mb-3 text-gray-700">Venue Information</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                      <div className='mb-6 p-4 bg-gray-50 rounded-lg'>
+                        <h3 className='font-medium mb-3 text-gray-700'>
+                          Venue Information
+                        </h3>
+                        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
                           <div>
-                            <label className="block text-sm mb-1 text-gray-600">Venue Name</label>
+                            <label className='block text-sm mb-1 text-gray-600'>
+                              Venue Name
+                            </label>
                             <input
-                              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                              placeholder="e.g. Blue Note"
+                              className='w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
+                              placeholder='e.g. Blue Note'
                               value={venueName}
                               onChange={e => setVenueName(e.target.value)}
                               disabled={loading || saving}
                             />
                           </div>
                           <div>
-                            <label className="block text-sm mb-1 text-gray-600">City</label>
+                            <label className='block text-sm mb-1 text-gray-600'>
+                              City
+                            </label>
                             <input
-                              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                              placeholder="e.g. New York"
+                              className='w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
+                              placeholder='e.g. New York'
                               value={venueCity}
                               onChange={e => setVenueCity(e.target.value)}
                               disabled={loading || saving}
                             />
                           </div>
                           <div>
-                            <label className="block text-sm mb-1 text-gray-600">Venue Email</label>
+                            <label className='block text-sm mb-1 text-gray-600'>
+                              Venue Email
+                            </label>
                             <input
-                              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                              placeholder="venue@example.com"
+                              className='w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
+                              placeholder='venue@example.com'
                               value={venueEmail}
                               onChange={e => setVenueEmail(e.target.value)}
                               disabled={loading || saving}
                             />
                           </div>
                           <div>
-                            <label className="block text-sm mb-1 text-gray-600">Venue Type</label>
+                            <label className='block text-sm mb-1 text-gray-600'>
+                              Venue Type
+                            </label>
                             <select
-                              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                              className='w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
                               value={selectedVenueType}
-                              onChange={e => setSelectedVenueType(e.target.value)}
+                              onChange={e =>
+                                setSelectedVenueType(e.target.value)
+                              }
                               disabled={loading || saving}
                             >
-                              <option value="">Select venue type</option>
+                              <option value=''>Select venue type</option>
                               {VENUE_TYPES.map(type => (
-                                <option key={type.id} value={type.id}>{type.name}</option>
+                                <option key={type.id} value={type.id}>
+                                  {type.name}
+                                </option>
                               ))}
                             </select>
                           </div>
                         </div>
 
-                                                 {selectedVenueType && (
-                           <div className="mt-3 p-3 bg-blue-50 rounded-lg">
-                             <div className="flex items-center gap-2 mb-2">
-                               {(() => {
-                                 const venueType = VENUE_TYPES.find(t => t.id === selectedVenueType);
-                                 const IconComponent = venueType?.icon;
-                                 return IconComponent && <IconComponent className="w-4 h-4 text-blue-600" />;
-                               })()}
-                               <span className="font-medium text-blue-900">
-                                 {VENUE_TYPES.find(t => t.id === selectedVenueType)?.name}
-                               </span>
-                             </div>
-                             <p className="text-sm text-blue-800 mb-2">
-                               {VENUE_TYPES.find(t => t.id === selectedVenueType)?.description}
-                             </p>
-                             <div className="text-xs text-blue-700">
-                               <strong>Tips:</strong> {VENUE_TYPES.find(t => t.id === selectedVenueType)?.tips.join(', ')}
-                             </div>
-                           </div>
-                         )}
+                        {selectedVenueType && (
+                          <div className='mt-3 p-3 bg-blue-50 rounded-lg'>
+                            <div className='flex items-center gap-2 mb-2'>
+                              {(() => {
+                                const venueType = VENUE_TYPES.find(
+                                  t => t.id === selectedVenueType
+                                );
+                                const IconComponent = venueType?.icon;
+                                return (
+                                  IconComponent && (
+                                    <IconComponent className='w-4 h-4 text-blue-600' />
+                                  )
+                                );
+                              })()}
+                              <span className='font-medium text-blue-900'>
+                                {
+                                  VENUE_TYPES.find(
+                                    t => t.id === selectedVenueType
+                                  )?.name
+                                }
+                              </span>
+                            </div>
+                            <p className='text-sm text-blue-800 mb-2'>
+                              {
+                                VENUE_TYPES.find(
+                                  t => t.id === selectedVenueType
+                                )?.description
+                              }
+                            </p>
+                            <div className='text-xs text-blue-700'>
+                              <strong>Tips:</strong>{' '}
+                              {VENUE_TYPES.find(
+                                t => t.id === selectedVenueType
+                              )?.tips.join(', ')}
+                            </div>
+                          </div>
+                        )}
                       </div>
 
                       {/* Template Selection */}
-                      <div className="mb-6">
-                        <div className="flex items-center justify-between mb-3">
-                          <label className="block font-medium text-gray-700">Template Style</label>
+                      <div className='mb-6'>
+                        <div className='flex items-center justify-between mb-3'>
+                          <label className='block font-medium text-gray-700'>
+                            Template Style
+                          </label>
                           <button
                             onClick={() => setShowTemplateLibrary(true)}
-                            className="text-sm text-blue-600 hover:text-blue-500"
+                            className='text-sm text-blue-600 hover:text-blue-500'
                           >
                             View all templates
                           </button>
                         </div>
                         <select
-                          className="w-full border border-gray-300 rounded px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                          className='w-full border border-gray-300 rounded px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
                           value={selectedTemplate}
                           onChange={e => setSelectedTemplate(e.target.value)}
                           disabled={loading || saving}
                         >
-                          <option value="">Select a template style</option>
+                          <option value=''>Select a template style</option>
                           {PITCH_TEMPLATES.map(template => (
-                            <option key={template.id} value={template.id}>{template.name}</option>
+                            <option key={template.id} value={template.id}>
+                              {template.name}
+                            </option>
                           ))}
                         </select>
                       </div>
 
                       {/* Pitch Content */}
-                      <div className="mb-4">
-                        <label className="block mb-2 font-medium text-gray-700">Subject Line</label>
+                      <div className='mb-4'>
+                        <label className='block mb-2 font-medium text-gray-700'>
+                          Subject Line
+                        </label>
                         <input
-                          className="w-full border border-gray-300 rounded px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                          placeholder="Booking Inquiry: Jane Doe"
+                          className='w-full border border-gray-300 rounded px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
+                          placeholder='Booking Inquiry: Jane Doe'
                           value={subject}
                           onChange={e => setSubject(e.target.value)}
                           disabled={loading || saving}
                         />
                       </div>
 
-                      <div className="mb-6">
-                        <label className="block mb-2 font-medium text-gray-700">Email Body</label>
+                      <div className='mb-6'>
+                        <label className='block mb-2 font-medium text-gray-700'>
+                          Email Body
+                        </label>
                         <textarea
-                          className="w-full border border-gray-300 rounded px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                          className='w-full border border-gray-300 rounded px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
                           rows={8}
-                          placeholder="Type your pitch or generate with AI..."
+                          placeholder='Type your pitch or generate with AI...'
                           value={body}
                           onChange={e => setBody(e.target.value)}
                           disabled={loading || saving}
@@ -961,52 +1099,71 @@ export default function PitchGenerator() {
                       </div>
 
                       {/* Email Recipient */}
-                      <div className="mb-6">
-                        <label className="block mb-2 font-medium text-gray-700">Email Recipient</label>
+                      <div className='mb-6'>
+                        <label className='block mb-2 font-medium text-gray-700'>
+                          Email Recipient
+                        </label>
                         <input
-                          className="w-full border border-gray-300 rounded px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                          placeholder="venue@example.com"
+                          className='w-full border border-gray-300 rounded px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
+                          placeholder='venue@example.com'
                           value={emailRecipient}
                           onChange={e => setEmailRecipient(e.target.value)}
                           disabled={loading || saving}
                         />
-                        <p className="text-xs text-gray-500 mt-1">
-                          This is the email address where your pitch will be sent
+                        <p className='text-xs text-gray-500 mt-1'>
+                          This is the email address where your pitch will be
+                          sent
                         </p>
                       </div>
 
                       {/* Action Buttons */}
-                      <div className="flex gap-3">
+                      <div className='flex gap-3'>
                         <button
                           onClick={handleGenerateDraft}
                           disabled={loading || saving}
-                          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                          className='flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2'
                         >
-                          {loading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                          {loading ? (
+                            <RefreshCw className='w-4 h-4 animate-spin' />
+                          ) : (
+                            <Sparkles className='w-4 h-4' />
+                          )}
                           {loading ? 'Generating...' : 'Generate AI Draft'}
                         </button>
                         <button
                           onClick={savePitch}
-                          disabled={loading || saving || !subject.trim() || !body.trim()}
-                          className="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                          disabled={
+                            loading || saving || !subject.trim() || !body.trim()
+                          }
+                          className='flex-1 bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2'
                         >
-                          {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                          {saving ? (
+                            <RefreshCw className='w-4 h-4 animate-spin' />
+                          ) : (
+                            <Save className='w-4 h-4' />
+                          )}
                           {saving ? 'Saving...' : 'Save Pitch'}
                         </button>
                         <button
                           onClick={openEmailModal}
-                          disabled={!subject.trim() || !body.trim() || !emailRecipient.trim()}
-                          className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                          disabled={
+                            !subject.trim() ||
+                            !body.trim() ||
+                            !emailRecipient.trim()
+                          }
+                          className='flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2'
                         >
-                          <Mail className="w-4 h-4" />
+                          <Mail className='w-4 h-4' />
                           Send Email
                         </button>
                         <button
-                          onClick={() => copyToClipboard(`${subject}\n\n${body}`)}
+                          onClick={() =>
+                            copyToClipboard(`${subject}\n\n${body}`)
+                          }
                           disabled={!subject.trim() || !body.trim()}
-                          className="px-4 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                          className='px-4 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2'
                         >
-                          <Copy className="w-4 h-4" />
+                          <Copy className='w-4 h-4' />
                           Copy
                         </button>
                       </div>
@@ -1018,9 +1175,11 @@ export default function PitchGenerator() {
               {/* Preview Tab */}
               {activeTab === 'preview' && (
                 <div>
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-semibold text-gray-900">Pitch Preview</h3>
-                    <div className="flex items-center gap-2">
+                  <div className='flex items-center justify-between mb-6'>
+                    <h3 className='text-lg font-semibold text-gray-900'>
+                      Pitch Preview
+                    </h3>
+                    <div className='flex items-center gap-2'>
                       <button
                         onClick={() => setPreviewMode('desktop')}
                         className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
@@ -1054,121 +1213,161 @@ export default function PitchGenerator() {
                     </div>
                   </div>
 
-                  {(!subject.trim() && !body.trim()) ? (
-                    <div className="text-center py-12 text-gray-500">
-                      <Eye className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                  {!subject.trim() && !body.trim() ? (
+                    <div className='text-center py-12 text-gray-500'>
+                      <Eye className='w-12 h-12 mx-auto mb-4 text-gray-300' />
                       <p>No pitch content to preview. Create a pitch first!</p>
                     </div>
                   ) : (
-                    <div className="space-y-6">
+                    <div className='space-y-6'>
                       {/* Pitch Status and Actions */}
-                      <div className="bg-white border border-gray-200 rounded-lg p-4">
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="flex items-center gap-3">
-                            <span className="text-sm font-medium text-gray-700">Status:</span>
-                            <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(currentPitch?.status || 'draft')}`}>
+                      <div className='bg-white border border-gray-200 rounded-lg p-4'>
+                        <div className='flex items-center justify-between mb-4'>
+                          <div className='flex items-center gap-3'>
+                            <span className='text-sm font-medium text-gray-700'>
+                              Status:
+                            </span>
+                            <span
+                              className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(currentPitch?.status || 'draft')}`}
+                            >
                               {getStatusIcon(currentPitch?.status || 'draft')}
                               {getStatusText(currentPitch?.status || 'draft')}
                             </span>
                             {currentPitch?.sent_at && (
-                              <span className="text-xs text-gray-500">
-                                Sent: {new Date(currentPitch.sent_at).toLocaleDateString()}
+                              <span className='text-xs text-gray-500'>
+                                Sent:{' '}
+                                {new Date(
+                                  currentPitch.sent_at
+                                ).toLocaleDateString()}
                               </span>
                             )}
                           </div>
-                          <div className="flex items-center gap-2">
+                          <div className='flex items-center gap-2'>
                             {currentPitch && (
                               <>
                                 <select
                                   value={currentPitch.status}
-                                  onChange={(e) => updatePitchStatus(currentPitch.id, e.target.value as any)}
-                                  className="text-xs border border-gray-300 rounded px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                                  onChange={e =>
+                                    updatePitchStatus(
+                                      currentPitch.id,
+                                      e.target.value as any
+                                    )
+                                  }
+                                  className='text-xs border border-gray-300 rounded px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
                                 >
-                                  <option value="draft">Draft</option>
-                                  <option value="sent">Sent</option>
-                                  <option value="scheduled">Scheduled</option>
-                                  <option value="archived">Archived</option>
+                                  <option value='draft'>Draft</option>
+                                  <option value='sent'>Sent</option>
+                                  <option value='scheduled'>Scheduled</option>
+                                  <option value='archived'>Archived</option>
                                 </select>
                               </>
                             )}
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2">
+                        <div className='flex items-center gap-2'>
                           <button
                             onClick={copyPitchToClipboard}
-                            className="flex items-center gap-1 px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
+                            className='flex items-center gap-1 px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors'
                           >
-                            <Copy className="w-3 h-3" />
+                            <Copy className='w-3 h-3' />
                             Copy
                           </button>
                           <button
                             onClick={downloadPitch}
-                            className="flex items-center gap-1 px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
+                            className='flex items-center gap-1 px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors'
                           >
-                            <Download className="w-3 h-3" />
+                            <Download className='w-3 h-3' />
                             Download
                           </button>
                           <button
                             onClick={printPitch}
-                            className="flex items-center gap-1 px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
+                            className='flex items-center gap-1 px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors'
                           >
-                            <Printer className="w-3 h-3" />
+                            <Printer className='w-3 h-3' />
                             Print
                           </button>
                           <button
                             onClick={() => {
                               const content = `Subject: ${subject}\n\n${body}`;
-                              navigator.share ? navigator.share({ text: content }) : copyPitchToClipboard();
+                              navigator.share
+                                ? navigator.share({ text: content })
+                                : copyPitchToClipboard();
                             }}
-                            className="flex items-center gap-1 px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
+                            className='flex items-center gap-1 px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors'
                           >
-                            <Share2 className="w-3 h-3" />
+                            <Share2 className='w-3 h-3' />
                             Share
                           </button>
                         </div>
                       </div>
 
                       {/* Preview Content */}
-                      <div className={`bg-white border border-gray-200 rounded-lg overflow-hidden ${
-                        previewMode === 'mobile' ? 'max-w-sm mx-auto' : 'w-full'
-                      }`}>
-                        <div className="bg-gray-50 px-4 py-2 border-b border-gray-200">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium text-gray-700">
-                              {previewMode === 'email' ? 'Email Preview' : 'Pitch Preview'}
+                      <div
+                        className={`bg-white border border-gray-200 rounded-lg overflow-hidden ${
+                          previewMode === 'mobile'
+                            ? 'max-w-sm mx-auto'
+                            : 'w-full'
+                        }`}
+                      >
+                        <div className='bg-gray-50 px-4 py-2 border-b border-gray-200'>
+                          <div className='flex items-center justify-between'>
+                            <span className='text-sm font-medium text-gray-700'>
+                              {previewMode === 'email'
+                                ? 'Email Preview'
+                                : 'Pitch Preview'}
                             </span>
-                            <span className="text-xs text-gray-500">
-                              {previewMode === 'mobile' ? 'Mobile View' : previewMode === 'email' ? 'Email Client' : 'Desktop View'}
+                            <span className='text-xs text-gray-500'>
+                              {previewMode === 'mobile'
+                                ? 'Mobile View'
+                                : previewMode === 'email'
+                                  ? 'Email Client'
+                                  : 'Desktop View'}
                             </span>
                           </div>
                         </div>
 
-                        <div className={`p-6 ${previewMode === 'mobile' ? 'text-sm' : ''}`}>
+                        <div
+                          className={`p-6 ${previewMode === 'mobile' ? 'text-sm' : ''}`}
+                        >
                           {previewMode === 'email' ? (
-                            <div className="space-y-4">
+                            <div className='space-y-4'>
                               <div>
-                                <div className="text-xs text-gray-500 mb-1">From: {profile?.name} &lt;{user?.email}&gt;</div>
-                                <div className="text-xs text-gray-500 mb-1">To: {venueEmail || 'venue@example.com'}</div>
-                                <div className="text-xs text-gray-500 mb-3">Subject: {subject}</div>
+                                <div className='text-xs text-gray-500 mb-1'>
+                                  From: {profile?.name} &lt;{user?.email}&gt;
+                                </div>
+                                <div className='text-xs text-gray-500 mb-1'>
+                                  To: {venueEmail || 'venue@example.com'}
+                                </div>
+                                <div className='text-xs text-gray-500 mb-3'>
+                                  Subject: {subject}
+                                </div>
                               </div>
-                              <div className="border-t border-gray-200 pt-4">
-                                <div className="whitespace-pre-wrap text-gray-900">{body}</div>
+                              <div className='border-t border-gray-200 pt-4'>
+                                <div className='whitespace-pre-wrap text-gray-900'>
+                                  {body}
+                                </div>
                               </div>
                             </div>
                           ) : (
-                            <div className="space-y-4">
+                            <div className='space-y-4'>
                               <div>
-                                <h4 className="font-semibold text-gray-900 mb-2">Subject</h4>
-                                <p className="text-gray-700">{subject}</p>
+                                <h4 className='font-semibold text-gray-900 mb-2'>
+                                  Subject
+                                </h4>
+                                <p className='text-gray-700'>{subject}</p>
                               </div>
                               <div>
-                                <h4 className="font-semibold text-gray-900 mb-2">Message</h4>
-                                <div className="whitespace-pre-wrap text-gray-700">{body}</div>
+                                <h4 className='font-semibold text-gray-900 mb-2'>
+                                  Message
+                                </h4>
+                                <div className='whitespace-pre-wrap text-gray-700'>
+                                  {body}
+                                </div>
                               </div>
                               {venueName && (
-                                <div className="bg-blue-50 p-3 rounded-lg">
-                                  <div className="text-sm text-blue-800">
+                                <div className='bg-blue-50 p-3 rounded-lg'>
+                                  <div className='text-sm text-blue-800'>
                                     <strong>Venue:</strong> {venueName}
                                     {venueCity && `, ${venueCity}`}
                                   </div>
@@ -1181,32 +1380,42 @@ export default function PitchGenerator() {
 
                       {/* Pitch Analytics Preview */}
                       {currentPitch && (
-                        <div className="bg-white border border-gray-200 rounded-lg p-4">
-                          <h4 className="font-medium text-gray-900 mb-3">Pitch Performance</h4>
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <div className="text-center">
-                              <div className="text-2xl font-bold text-blue-600">
+                        <div className='bg-white border border-gray-200 rounded-lg p-4'>
+                          <h4 className='font-medium text-gray-900 mb-3'>
+                            Pitch Performance
+                          </h4>
+                          <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
+                            <div className='text-center'>
+                              <div className='text-2xl font-bold text-blue-600'>
                                 {currentPitch.success_rate || 0}%
                               </div>
-                              <div className="text-xs text-gray-500">Success Rate</div>
+                              <div className='text-xs text-gray-500'>
+                                Success Rate
+                              </div>
                             </div>
-                            <div className="text-center">
-                              <div className="text-2xl font-bold text-green-600">
+                            <div className='text-center'>
+                              <div className='text-2xl font-bold text-green-600'>
                                 {currentPitch.response_count || 0}
                               </div>
-                              <div className="text-xs text-gray-500">Responses</div>
+                              <div className='text-xs text-gray-500'>
+                                Responses
+                              </div>
                             </div>
-                            <div className="text-center">
-                              <div className="text-2xl font-bold text-purple-600">
+                            <div className='text-center'>
+                              <div className='text-2xl font-bold text-purple-600'>
                                 {currentPitch.sent_at ? 'Yes' : 'No'}
                               </div>
-                              <div className="text-xs text-gray-500">Sent</div>
+                              <div className='text-xs text-gray-500'>Sent</div>
                             </div>
-                            <div className="text-center">
-                              <div className="text-2xl font-bold text-orange-600">
-                                {new Date(currentPitch.created_at).toLocaleDateString()}
+                            <div className='text-center'>
+                              <div className='text-2xl font-bold text-orange-600'>
+                                {new Date(
+                                  currentPitch.created_at
+                                ).toLocaleDateString()}
                               </div>
-                              <div className="text-xs text-gray-500">Created</div>
+                              <div className='text-xs text-gray-500'>
+                                Created
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -1219,19 +1428,25 @@ export default function PitchGenerator() {
               {/* Templates Tab */}
               {activeTab === 'templates' && (
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-6">Pitch Templates</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {PITCH_TEMPLATES.map((template) => (
+                  <h3 className='text-lg font-semibold text-gray-900 mb-6'>
+                    Pitch Templates
+                  </h3>
+                  <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+                    {PITCH_TEMPLATES.map(template => (
                       <motion.div
                         key={template.id}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow cursor-pointer"
+                        className='bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow cursor-pointer'
                         onClick={() => applyTemplate(template)}
                       >
-                        <h4 className="font-semibold text-gray-900 mb-2">{template.name}</h4>
-                        <p className="text-sm text-gray-600 mb-4">{template.description}</p>
-                        <div className="text-xs text-gray-500 bg-gray-50 p-3 rounded">
+                        <h4 className='font-semibold text-gray-900 mb-2'>
+                          {template.name}
+                        </h4>
+                        <p className='text-sm text-gray-600 mb-4'>
+                          {template.description}
+                        </p>
+                        <div className='text-xs text-gray-500 bg-gray-50 p-3 rounded'>
                           <strong>Subject:</strong> {template.subject}
                         </div>
                       </motion.div>
@@ -1243,54 +1458,60 @@ export default function PitchGenerator() {
               {/* History Tab */}
               {activeTab === 'history' && (
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-6">Pitch History</h3>
-                  <div className="space-y-4">
+                  <h3 className='text-lg font-semibold text-gray-900 mb-6'>
+                    Pitch History
+                  </h3>
+                  <div className='space-y-4'>
                     {pitchHistory.length === 0 ? (
-                      <div className="text-center py-8 text-gray-500">
-                        <History className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                      <div className='text-center py-8 text-gray-500'>
+                        <History className='w-12 h-12 mx-auto mb-4 text-gray-300' />
                         <p>No pitch history yet. Create your first pitch!</p>
                       </div>
                     ) : (
-                      pitchHistory.map((pitch) => (
+                      pitchHistory.map(pitch => (
                         <motion.div
                           key={pitch.id}
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
-                          className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+                          className='bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer'
                           onClick={() => loadPitchFromHistory(pitch)}
                         >
-                          <div className="flex items-center justify-between mb-2">
-                            <h4 className="font-medium text-gray-900">{pitch.subject}</h4>
-                            <div className="flex items-center gap-2 text-sm text-gray-500">
+                          <div className='flex items-center justify-between mb-2'>
+                            <h4 className='font-medium text-gray-900'>
+                              {pitch.subject}
+                            </h4>
+                            <div className='flex items-center gap-2 text-sm text-gray-500'>
                               {pitch.success_rate && (
-                                <div className="flex items-center gap-1">
-                                  <TrendingUp className="w-3 h-3" />
+                                <div className='flex items-center gap-1'>
+                                  <TrendingUp className='w-3 h-3' />
                                   {pitch.success_rate}%
                                 </div>
                               )}
                               {pitch.response_count && (
-                                <div className="flex items-center gap-1">
-                                  <MessageSquare className="w-3 h-3" />
+                                <div className='flex items-center gap-1'>
+                                  <MessageSquare className='w-3 h-3' />
                                   {pitch.response_count} responses
                                 </div>
                               )}
                             </div>
                           </div>
-                          <div className="flex items-center gap-4 text-xs text-gray-500">
-                            <div className="flex items-center gap-1">
-                              <Calendar className="w-3 h-3" />
+                          <div className='flex items-center gap-4 text-xs text-gray-500'>
+                            <div className='flex items-center gap-1'>
+                              <Calendar className='w-3 h-3' />
                               {new Date(pitch.created_at).toLocaleDateString()}
                             </div>
                             {pitch.venue_name && (
-                              <div className="flex items-center gap-1">
-                                <MapPin className="w-3 h-3" />
+                              <div className='flex items-center gap-1'>
+                                <MapPin className='w-3 h-3' />
                                 {pitch.venue_name}
                               </div>
                             )}
                             {pitch.venue_type && (
-                              <div className="flex items-center gap-1">
-                                <Target className="w-3 h-3" />
-                                {VENUE_TYPES.find(t => t.id === pitch.venue_type)?.name || pitch.venue_type}
+                              <div className='flex items-center gap-1'>
+                                <Target className='w-3 h-3' />
+                                {VENUE_TYPES.find(
+                                  t => t.id === pitch.venue_type
+                                )?.name || pitch.venue_type}
                               </div>
                             )}
                           </div>
@@ -1306,99 +1527,124 @@ export default function PitchGenerator() {
 
         {/* Email Modal */}
         {showEmailModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4'>
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              className='bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto'
             >
-              <div className="p-6 border-b border-gray-200">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-bold text-gray-900">Send Pitch Email</h2>
+              <div className='p-6 border-b border-gray-200'>
+                <div className='flex items-center justify-between'>
+                  <h2 className='text-xl font-bold text-gray-900'>
+                    Send Pitch Email
+                  </h2>
                   <button
                     onClick={() => setShowEmailModal(false)}
-                    className="text-gray-400 hover:text-gray-600"
+                    className='text-gray-400 hover:text-gray-600'
                   >
-                    <X className="w-6 h-6" />
+                    <X className='w-6 h-6' />
                   </button>
                 </div>
               </div>
 
-              <div className="p-6">
+              <div className='p-6'>
                 {emailSuccess && (
-                  <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-                    <p className="text-green-800">{emailSuccess}</p>
+                  <div className='mb-4 p-3 bg-green-50 border border-green-200 rounded-lg'>
+                    <p className='text-green-800'>{emailSuccess}</p>
                   </div>
                 )}
 
                 {emailError && (
-                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                    <p className="text-red-800">{emailError}</p>
+                  <div className='mb-4 p-3 bg-red-50 border border-red-200 rounded-lg'>
+                    <p className='text-red-800'>{emailError}</p>
                   </div>
                 )}
 
-                <div className="space-y-4">
+                <div className='space-y-4'>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">To</label>
+                    <label className='block text-sm font-medium text-gray-700 mb-2'>
+                      To
+                    </label>
                     <input
-                      type="email"
+                      type='email'
                       value={emailRecipient}
-                      onChange={(e) => setEmailRecipient(e.target.value)}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                      placeholder="venue@example.com"
+                      onChange={e => setEmailRecipient(e.target.value)}
+                      className='w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
+                      placeholder='venue@example.com'
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Subject</label>
+                    <label className='block text-sm font-medium text-gray-700 mb-2'>
+                      Subject
+                    </label>
                     <input
-                      type="text"
+                      type='text'
                       value={emailSubject}
-                      onChange={(e) => setEmailSubject(e.target.value)}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                      onChange={e => setEmailSubject(e.target.value)}
+                      className='w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Message</label>
+                    <label className='block text-sm font-medium text-gray-700 mb-2'>
+                      Message
+                    </label>
                     <textarea
                       value={emailContent}
-                      onChange={(e) => setEmailContent(e.target.value)}
+                      onChange={e => setEmailContent(e.target.value)}
                       rows={12}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                      className='w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
                     />
                   </div>
 
                   {/* Email Templates */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Quick Templates</label>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                      {getTemplatesByVenueType(selectedVenueType || 'all').slice(0, 4).map((template) => (
-                        <button
-                          key={template.id}
-                          onClick={() => applyEmailTemplate(template)}
-                          className="text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-                        >
-                          <div className="font-medium text-sm text-gray-900">{template.name}</div>
-                          <div className="text-xs text-gray-500">{template.description}</div>
-                        </button>
-                      ))}
+                    <label className='block text-sm font-medium text-gray-700 mb-2'>
+                      Quick Templates
+                    </label>
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-2'>
+                      {getTemplatesByVenueType(selectedVenueType || 'all')
+                        .slice(0, 4)
+                        .map(template => (
+                          <button
+                            key={template.id}
+                            onClick={() => applyEmailTemplate(template)}
+                            className='text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors'
+                          >
+                            <div className='font-medium text-sm text-gray-900'>
+                              {template.name}
+                            </div>
+                            <div className='text-xs text-gray-500'>
+                              {template.description}
+                            </div>
+                          </button>
+                        ))}
                     </div>
                   </div>
                 </div>
 
-                <div className="flex gap-3 mt-6">
+                <div className='flex gap-3 mt-6'>
                   <button
                     onClick={sendEmail}
-                    disabled={sendingEmail || !emailRecipient || !emailSubject || !emailContent}
-                    className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    disabled={
+                      sendingEmail ||
+                      !emailRecipient ||
+                      !emailSubject ||
+                      !emailContent
+                    }
+                    className='flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2'
                   >
-                    {sendingEmail ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                    {sendingEmail ? (
+                      <RefreshCw className='w-4 h-4 animate-spin' />
+                    ) : (
+                      <Send className='w-4 h-4' />
+                    )}
                     {sendingEmail ? 'Sending...' : 'Send Email'}
                   </button>
                   <button
                     onClick={() => setShowEmailModal(false)}
-                    className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                    className='px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors'
                   >
                     Cancel
                   </button>

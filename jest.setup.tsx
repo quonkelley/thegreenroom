@@ -41,4 +41,4 @@ global.ResizeObserver = jest.fn().mockImplementation(() => ({
 }));
 
 // Mock fetch globally
-global.fetch = jest.fn(); 
+global.fetch = jest.fn();

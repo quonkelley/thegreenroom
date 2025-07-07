@@ -13,8 +13,8 @@ test.describe('Authentication', () => {
   });
 
   test('should display signup form', async ({ page }) => {
-    await page.click('text=Don\'t have an account? Sign up');
-    
+    await page.click("text=Don't have an account? Sign up");
+
     await expect(page.locator('input[type="email"]')).toBeVisible();
     await expect(page.locator('input[type="password"]').first()).toBeVisible();
     await expect(page.locator('input[type="password"]').nth(1)).toBeVisible();
@@ -26,11 +26,11 @@ test.describe('Authentication', () => {
   test('should switch between login and signup forms', async ({ page }) => {
     // Start on login form
     await expect(page.locator('text=Sign in to your account')).toBeVisible();
-    
+
     // Switch to signup
-    await page.click('text=Don\'t have an account? Sign up');
+    await page.click("text=Don't have an account? Sign up");
     await expect(page.locator('text=Create your account')).toBeVisible();
-    
+
     // Switch back to login
     await page.click('text=Already have an account? Sign in');
     await expect(page.locator('text=Sign in to your account')).toBeVisible();

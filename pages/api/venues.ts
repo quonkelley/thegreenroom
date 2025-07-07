@@ -1,7 +1,10 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { createClient } from '@supabase/supabase-js';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -12,26 +15,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   );
 
   try {
-    const { 
-      search, 
-      city, 
-      genres, 
-      venue_type, 
-      min_capacity, 
+    const {
+      search,
+      city,
+      genres,
+      venue_type,
+      min_capacity,
       max_capacity,
       limit = '50',
-      offset = '0'
+      offset = '0',
     } = req.query;
 
-    let query = supabase
-      .from('venues')
-      .select('*')
-      .eq('status', 'active');
+    let query = supabase.from('venues').select('*').eq('status', 'active');
 
     // Text search across name, city, and notes
     if (search) {
       const searchTerm = search as string;
-      query = query.or(`name.ilike.%${searchTerm}%,city.ilike.%${searchTerm}%,notes.ilike.%${searchTerm}%`);
+      query = query.or(
+        `name.ilike.%${searchTerm}%,city.ilike.%${searchTerm}%,notes.ilike.%${searchTerm}%`
+      );
     }
 
     // City filter
@@ -87,17 +89,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Add venue type classification
-    const venuesWithType = venues?.map(venue => ({
-      ...venue,
-      venue_type: classifyVenueType(venue)
-    })) || [];
+    const venuesWithType =
+      venues?.map(venue => ({
+        ...venue,
+        venue_type: classifyVenueType(venue),
+      })) || [];
 
-    res.status(200).json({ 
+    res.status(200).json({
       venues: venuesWithType,
       total: venuesWithType.length,
-      message: 'Venues retrieved successfully'
+      message: 'Venues retrieved successfully',
     });
-
   } catch (error) {
     console.error('Venues API error:', error);
     res.status(500).json({ error: 'Failed to retrieve venues' });
@@ -111,11 +113,13 @@ function classifyVenueType(venue: any): string {
   if (genres.some((g: string) => ['jazz', 'blues'].includes(g))) {
     return 'jazz-club';
   }
-  if (genres.some((g: string) => ['rock', 'indie', 'alternative'].includes(g))) {
+  if (
+    genres.some((g: string) => ['rock', 'indie', 'alternative'].includes(g))
+  ) {
     return 'rock-venue';
   }
   if (capacity < 100) {
     return 'coffee-shop';
   }
   return 'restaurant';
-} 
+}

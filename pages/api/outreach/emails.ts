@@ -1,5 +1,5 @@
-import { NextApiRequest, NextApiResponse } from 'next';
 import { createClient } from '@supabase/supabase-js';
+import { NextApiRequest, NextApiResponse } from 'next';
 import { Resend } from 'resend';
 import { OutreachEmail } from '../../../types';
 
@@ -10,11 +10,14 @@ const supabase = createClient(
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   if (req.method === 'GET') {
     try {
       const { artist_id, campaign_id, status } = req.query;
-      
+
       if (!artist_id) {
         return res.status(400).json({ error: 'Artist ID is required' });
       }
@@ -47,21 +50,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
   } else if (req.method === 'POST') {
     try {
-      const { 
-        campaign_id, 
-        artist_id, 
-        venue_name, 
-        venue_email, 
-        venue_city, 
-        venue_website, 
-        subject, 
+      const {
+        campaign_id,
+        artist_id,
+        venue_name,
+        venue_email,
+        venue_city,
+        venue_website,
+        subject,
         body,
-        send_email = false 
+        send_email = false,
       } = req.body;
 
       if (!artist_id || !venue_name || !subject || !body) {
-        return res.status(400).json({ 
-          error: 'Artist ID, venue name, subject, and body are required' 
+        return res.status(400).json({
+          error: 'Artist ID, venue name, subject, and body are required',
         });
       }
 
@@ -76,7 +79,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         subject,
         body,
         status: send_email ? 'sent' : 'draft',
-        sent_at: send_email ? new Date().toISOString() : null
+        sent_at: send_email ? new Date().toISOString() : null,
       };
 
       const { data: email, error } = await supabase
@@ -98,7 +101,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             to: [venue_email],
             subject,
             html: body.replace(/\n/g, '<br>'),
-            replyTo: 'noreply@thegreenroom.ai'
+            replyTo: 'noreply@thegreenroom.ai',
           });
         } catch (emailError) {
           console.error('Email sending error:', emailError);
@@ -107,9 +110,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             .from('outreach_emails')
             .update({ status: 'draft' })
             .eq('id', email.id);
-          
-          return res.status(500).json({ 
-            error: 'Failed to send email, but draft was saved' 
+
+          return res.status(500).json({
+            error: 'Failed to send email, but draft was saved',
           });
         }
       }
@@ -121,13 +124,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
   } else if (req.method === 'PUT') {
     try {
-      const { 
-        id, 
-        status, 
-        response_content, 
-        response_type, 
+      const {
+        id,
+        status,
+        response_content,
+        response_type,
         notes,
-        send_email = false 
+        send_email = false,
       } = req.body;
 
       if (!id) {
@@ -135,10 +138,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       const updateData: Partial<OutreachEmail> = {};
-      if (status !== undefined) updateData.status = status;
-      if (response_content !== undefined) updateData.response_content = response_content;
-      if (response_type !== undefined) updateData.response_type = response_type;
-      if (notes !== undefined) updateData.notes = notes;
+      if (status !== undefined) {
+        updateData.status = status;
+      }
+      if (response_content !== undefined) {
+        updateData.response_content = response_content;
+      }
+      if (response_type !== undefined) {
+        updateData.response_type = response_type;
+      }
+      if (notes !== undefined) {
+        updateData.notes = notes;
+      }
 
       // If sending email, update sent_at timestamp
       if (send_email) {
@@ -166,12 +177,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             to: [email.venue_email],
             subject: email.subject,
             html: email.body.replace(/\n/g, '<br>'),
-            replyTo: 'noreply@thegreenroom.ai'
+            replyTo: 'noreply@thegreenroom.ai',
           });
         } catch (emailError) {
           console.error('Email sending error:', emailError);
-          return res.status(500).json({ 
-            error: 'Failed to send email, but record was updated' 
+          return res.status(500).json({
+            error: 'Failed to send email, but record was updated',
           });
         }
       }
@@ -207,4 +218,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   } else {
     res.status(405).json({ error: 'Method not allowed' });
   }
-} 
+}

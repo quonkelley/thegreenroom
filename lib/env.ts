@@ -29,7 +29,9 @@ export function validateEnvironment(): EnvironmentVariables {
     SUPABASE_SERVICE_ROLE_KEY: requiredVars.SUPABASE_SERVICE_ROLE_KEY!,
     RESEND_API_KEY: requiredVars.RESEND_API_KEY!,
     OPENAI_API_KEY: requiredVars.OPENAI_API_KEY!,
-    NODE_ENV: (process.env.NODE_ENV as 'development' | 'production' | 'test') || 'development',
+    NODE_ENV:
+      (process.env.NODE_ENV as 'development' | 'production' | 'test') ||
+      'development',
   };
 }
 
@@ -64,4 +66,4 @@ export function isProduction(): boolean {
  */
 export function isTest(): boolean {
   return process.env.NODE_ENV === 'test';
-} 
+}

@@ -43,10 +43,18 @@ describe('/api/subscribe', () => {
   });
 
   it('returns 400 if email already exists', async () => {
-    supabase.__mock.maybeSingle.mockResolvedValueOnce({ data: { id: '123' }, error: null });
+    supabase.__mock.maybeSingle.mockResolvedValueOnce({
+      data: { id: '123' },
+      error: null,
+    });
     const { req, res } = createMocks({
       method: 'POST',
-      body: { email: 'test@example.com', name: 'Test', genre: 'Jazz', city: 'NY' },
+      body: {
+        email: 'test@example.com',
+        name: 'Test',
+        genre: 'Jazz',
+        city: 'NY',
+      },
     });
     await handler(req, res);
     expect(res._getStatusCode()).toBe(400);
@@ -54,11 +62,22 @@ describe('/api/subscribe', () => {
   });
 
   it('returns 200 and inserts profile for valid request', async () => {
-    supabase.__mock.maybeSingle.mockResolvedValueOnce({ data: null, error: null });
-    supabase.__mock.single.mockResolvedValueOnce({ data: { id: 'newid' }, error: null });
+    supabase.__mock.maybeSingle.mockResolvedValueOnce({
+      data: null,
+      error: null,
+    });
+    supabase.__mock.single.mockResolvedValueOnce({
+      data: { id: 'newid' },
+      error: null,
+    });
     const { req, res } = createMocks({
       method: 'POST',
-      body: { email: 'test@example.com', name: 'Test', genre: 'Jazz', city: 'NY' },
+      body: {
+        email: 'test@example.com',
+        name: 'Test',
+        genre: 'Jazz',
+        city: 'NY',
+      },
     });
     await handler(req, res);
     expect(res._getStatusCode()).toBe(200);
@@ -66,14 +85,25 @@ describe('/api/subscribe', () => {
   });
 
   it('returns 500 if Supabase insert fails', async () => {
-    supabase.__mock.maybeSingle.mockResolvedValueOnce({ data: null, error: null });
-    supabase.__mock.single.mockResolvedValueOnce({ data: null, error: { message: 'fail' } });
+    supabase.__mock.maybeSingle.mockResolvedValueOnce({
+      data: null,
+      error: null,
+    });
+    supabase.__mock.single.mockResolvedValueOnce({
+      data: null,
+      error: { message: 'fail' },
+    });
     const { req, res } = createMocks({
       method: 'POST',
-      body: { email: 'test@example.com', name: 'Test', genre: 'Jazz', city: 'NY' },
+      body: {
+        email: 'test@example.com',
+        name: 'Test',
+        genre: 'Jazz',
+        city: 'NY',
+      },
     });
     await handler(req, res);
     expect(res._getStatusCode()).toBe(500);
     expect(res._getData()).toMatch(/fail/);
   });
-}); 
+});

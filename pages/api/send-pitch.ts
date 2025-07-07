@@ -12,22 +12,22 @@ export default async function handler(
   }
 
   try {
-    const { 
-      to, 
-      subject, 
-      content, 
-      venueName, 
-      artistName, 
+    const {
+      to,
+      subject,
+      content,
+      venueName,
+      artistName,
       artistEmail,
       venueEmail,
-      scheduledFor 
+      scheduledFor,
     } = req.body;
 
     // Validate required fields
     if (!to || !subject || !content) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Missing required fields: to, subject, content' 
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required fields: to, subject, content',
       });
     }
 
@@ -117,7 +117,7 @@ export default async function handler(
       to: [to],
       subject: subject,
       html: emailHtml,
-      reply_to: artistEmail || 'noreply@thegreenroom.ai'
+      reply_to: artistEmail || 'noreply@thegreenroom.ai',
     };
 
     // Add scheduling if specified
@@ -130,50 +130,53 @@ export default async function handler(
 
     if (error) {
       console.error('Email send error:', error);
-      return res.status(500).json({ 
-        success: false, 
-        error: error.message || 'Failed to send email' 
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Failed to send email',
       });
     }
 
     // Track email event for analytics
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/track-email`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          event: 'email_sent',
-          emailId: data?.id,
-          artistId: req.body.artistId || 'unknown',
-          venueName,
-          venueEmail: to,
-          subject,
-          status: 'sent',
-          metadata: {
-            messageId: data?.id,
-            artistName,
-            artistEmail
-          }
-        })
-      });
+      await fetch(
+        `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/track-email`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            event: 'email_sent',
+            emailId: data?.id,
+            artistId: req.body.artistId || 'unknown',
+            venueName,
+            venueEmail: to,
+            subject,
+            status: 'sent',
+            metadata: {
+              messageId: data?.id,
+              artistName,
+              artistEmail,
+            },
+          }),
+        }
+      );
     } catch (trackingError) {
       console.error('Failed to track email event:', trackingError);
     }
 
     // Email sent successfully
 
-    res.status(200).json({ 
-      success: true, 
+    res.status(200).json({
+      success: true,
       message: 'Email sent successfully',
-      messageId: data?.id
+      messageId: data?.id,
     });
-
   } catch (error) {
     console.error('Send pitch error:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    res.status(500).json({ 
-      success: false, 
-      error: errorMessage 
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error occurred';
+    res.status(500).json({
+      success: false,
+      error: errorMessage,
     });
   }
-} 
+}

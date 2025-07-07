@@ -1,7 +1,10 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { createClient } from '@supabase/supabase-js';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -25,16 +28,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Extract unique cities and sort them
-    const cities = [...new Set(venues?.map(venue => venue.city).filter(Boolean))].sort();
+    const cities = [
+      ...new Set(venues?.map(venue => venue.city).filter(Boolean)),
+    ].sort();
 
-    res.status(200).json({ 
+    res.status(200).json({
       cities,
       total: cities.length,
-      message: 'Cities retrieved successfully'
+      message: 'Cities retrieved successfully',
     });
-
   } catch (error) {
     console.error('Cities API error:', error);
     res.status(500).json({ error: 'Failed to retrieve cities' });
   }
-} 
+}

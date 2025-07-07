@@ -10,8 +10,8 @@ interface LogEntry {
   level: keyof LogLevel;
   message: string;
   data?: any;
-  userId?: string;
-  requestId?: string;
+  userId?: string | undefined;
+  requestId?: string | undefined;
   endpoint?: string;
   duration?: number;
 }
@@ -23,14 +23,20 @@ class Logger {
   constructor() {
     // Set log level from environment variable
     const envLogLevel = process.env.LOG_LEVEL as keyof LogLevel;
-    if (envLogLevel && ['ERROR', 'WARN', 'INFO', 'DEBUG'].includes(envLogLevel)) {
+    if (
+      envLogLevel &&
+      ['ERROR', 'WARN', 'INFO', 'DEBUG'].includes(envLogLevel)
+    ) {
       this.logLevel = envLogLevel;
     }
   }
 
   private shouldLog(level: keyof LogLevel): boolean {
     const levels: LogLevel = { ERROR: 0, WARN: 1, INFO: 2, DEBUG: 3 };
-    return levels[level] <= levels[this.logLevel];
+    if (levels[level] <= levels[this.logLevel]) {
+      return true;
+    }
+    return false;
   }
 
   private formatLog(entry: LogEntry): string {
@@ -39,41 +45,52 @@ class Logger {
       entry.userId && `user:${entry.userId}`,
       entry.requestId && `req:${entry.requestId}`,
       entry.endpoint && `endpoint:${entry.endpoint}`,
-      entry.duration && `duration:${entry.duration}ms`
-    ].filter(Boolean).join(' | ');
+      entry.duration && `duration:${entry.duration}ms`,
+    ]
+      .filter(Boolean)
+      .join(' | ');
 
     return `${base}${context ? ` | ${context}` : ''} | ${entry.message}`;
   }
 
-  private log(level: keyof LogLevel, message: string, data?: any, context?: Partial<LogEntry>): void {
-    if (!this.shouldLog(level)) return;
+  private log(
+    level: keyof LogLevel,
+    message: string,
+    data?: any,
+    context?: Partial<LogEntry>
+  ): void {
+    if (!this.shouldLog(level)) {
+      return;
+    }
 
     const entry: LogEntry = {
       timestamp: new Date().toISOString(),
       level,
       message,
       data,
-      ...context
+      ...context,
     };
 
     const formattedLog = this.formatLog(entry);
-    
+
     // Console output with colors in development
     if (this.isDevelopment) {
       const colors = {
         ERROR: '\x1b[31m', // Red
-        WARN: '\x1b[33m',  // Yellow
-        INFO: '\x1b[36m',  // Cyan
-        DEBUG: '\x1b[35m'  // Magenta
+        WARN: '\x1b[33m', // Yellow
+        INFO: '\x1b[36m', // Cyan
+        DEBUG: '\x1b[35m', // Magenta
       };
       const reset = '\x1b[0m';
-      console.log(`${colors[level]}${formattedLog}${reset}`);
+      process.stdout.write(`${colors[level]}${formattedLog}${reset}\n`);
       if (data) {
-        console.log(`${colors[level]}Data:${reset}`, data);
+        process.stdout.write(
+          `${colors[level]}Data:${reset} ${JSON.stringify(data, null, 2)}\n`
+        );
       }
     } else {
       // Production: structured JSON logging
-      console.log(JSON.stringify(entry));
+      process.stdout.write(JSON.stringify(entry) + '\n');
     }
   }
 
@@ -94,29 +111,51 @@ class Logger {
   }
 
   // API-specific logging methods
-  apiRequest(method: string, endpoint: string, userId?: string, requestId?: string): void {
+  apiRequest(
+    method: string,
+    endpoint: string,
+    userId?: string,
+    requestId?: string
+  ): void {
     this.info(`API Request: ${method} ${endpoint}`, undefined, {
       endpoint,
       userId,
-      requestId
+      requestId,
     });
   }
 
-  apiResponse(method: string, endpoint: string, statusCode: number, duration: number, userId?: string, requestId?: string): void {
+  apiResponse(
+    method: string,
+    endpoint: string,
+    statusCode: number,
+    duration: number,
+    userId?: string,
+    requestId?: string
+  ): void {
     const level = statusCode >= 400 ? 'ERROR' : 'INFO';
-    this.log(level, `API Response: ${method} ${endpoint} - ${statusCode}`, undefined, {
-      endpoint,
-      userId,
-      requestId,
-      duration
-    });
+    this.log(
+      level,
+      `API Response: ${method} ${endpoint} - ${statusCode}`,
+      undefined,
+      {
+        endpoint,
+        userId,
+        requestId,
+        duration,
+      }
+    );
   }
 
   // Database logging
-  dbQuery(operation: string, table: string, duration: number, userId?: string): void {
+  dbQuery(
+    operation: string,
+    table: string,
+    duration: number,
+    userId?: string
+  ): void {
     this.debug(`DB Query: ${operation} on ${table}`, undefined, {
       userId,
-      duration
+      duration,
     });
   }
 
@@ -131,7 +170,11 @@ class Logger {
 
   // AI/OpenAI logging
   aiRequest(prompt: string, model: string, userId?: string): void {
-    this.info(`AI Request: ${model}`, { prompt: prompt.substring(0, 100) + '...' }, { userId });
+    this.info(
+      `AI Request: ${model}`,
+      { prompt: prompt.substring(0, 100) + '...' },
+      { userId }
+    );
   }
 
   aiResponse(model: string, duration: number, userId?: string): void {
@@ -146,4 +189,4 @@ class Logger {
 // Create singleton instance
 const logger = new Logger();
 
-export default logger; 
+export default logger;

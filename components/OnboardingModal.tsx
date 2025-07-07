@@ -136,7 +136,7 @@ export default function OnboardingModal() {
     // Don't show modal when user is actively working on a step
     setIsOpen(false);
     if (process.env.NODE_ENV === 'development') {
-      console.log(`[Onboarding] Step ${stepId} marked as active`);
+      // Step marked as active
     }
   };
 
@@ -154,7 +154,7 @@ export default function OnboardingModal() {
     );
 
     if (process.env.NODE_ENV === 'development') {
-      console.log(`[Onboarding] Step ${stepId} marked as completed`);
+      // Step marked as completed
     }
 
     // Show modal briefly to congratulate and guide to next step
@@ -177,9 +177,7 @@ export default function OnboardingModal() {
       // Don't check if user is actively working on a step
       if (activeStepId) {
         if (process.env.NODE_ENV === 'development') {
-          console.log(
-            `[Onboarding] Skipping check - user is active on step ${activeStepId}`
-          );
+          // Skipping check - user is active on step
         }
         return;
       }
@@ -195,7 +193,7 @@ export default function OnboardingModal() {
       // Input validation using security utilities
       const sanitizedEmail = validateEmail(user?.email);
       if (!sanitizedEmail) {
-        console.warn('Invalid email format detected');
+        // Invalid email format detected
         return;
       }
 
@@ -208,7 +206,7 @@ export default function OnboardingModal() {
 
       // If no profile exists, that's fine - user needs to create one
       if (profileError && profileError.code !== 'PGRST116') {
-        console.error('Error fetching profile:', profileError);
+        // Error fetching profile
         return;
       }
 
@@ -231,7 +229,7 @@ export default function OnboardingModal() {
           .eq('artist_id', validatedProfileId);
 
         if (pitchError) {
-          console.error('Error fetching pitch count:', pitchError);
+          // Error fetching pitch count
         } else {
           pitchCount = pitchCountResult || 0;
         }
@@ -244,7 +242,7 @@ export default function OnboardingModal() {
             .eq('artist_id', validatedProfileId);
 
         if (campaignError) {
-          console.error('Error fetching campaign count:', campaignError);
+          // Error fetching campaign count
         } else {
           campaignCount = campaignCountResult || 0;
         }
@@ -256,7 +254,7 @@ export default function OnboardingModal() {
           .eq('artist_id', validatedProfileId);
 
         if (emailError) {
-          console.error('Error fetching email count:', emailError);
+          // Error fetching email count
         } else {
           emailCount = emailCountResult || 0;
         }
@@ -331,7 +329,7 @@ export default function OnboardingModal() {
         }
       }
     } catch (error) {
-      console.error('Error checking onboarding status:', error);
+      // Error checking onboarding status
     }
   }, [user?.email, activeStepId, lastStepCompletion]);
 
@@ -361,7 +359,7 @@ export default function OnboardingModal() {
     // Input validation using security utilities
     const sanitizedEmail = validateEmail(user?.email);
     if (!sanitizedEmail) {
-      console.warn('Invalid email format detected');
+      // Invalid email format detected
       return;
     }
 
@@ -406,7 +404,7 @@ export default function OnboardingModal() {
       // Mark the sample-data step as completed using the new function
       markStepCompleted('sample-data');
     } catch (error) {
-      console.error('Error creating sample data:', error);
+      // Error creating sample data
     } finally {
       setLoading(false);
     }
@@ -713,7 +711,7 @@ export default function OnboardingModal() {
                 onClick={skipOnboarding}
                 className='text-gray-500 hover:text-gray-700 font-medium px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors text-sm'
               >
-                Don't show again
+                Don&apos;t show again
               </button>
               {currentStep < steps.length - 1 && (
                 <button

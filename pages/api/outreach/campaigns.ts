@@ -7,11 +7,14 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   if (req.method === 'GET') {
     try {
       const { user_id } = req.query;
-      
+
       if (!user_id) {
         return res.status(400).json({ error: 'User ID is required' });
       }
@@ -37,17 +40,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const { name, description, artist_id } = req.body;
 
       if (!name || !artist_id) {
-        return res.status(400).json({ error: 'Name and artist_id are required' });
+        return res
+          .status(400)
+          .json({ error: 'Name and artist_id are required' });
       }
 
       const { data: campaign, error } = await supabase
         .from('outreach_campaigns')
-        .insert([{
-          name,
-          description,
-          artist_id,
-          status: 'active'
-        }])
+        .insert([
+          {
+            name,
+            description,
+            artist_id,
+            status: 'active',
+          },
+        ])
         .select()
         .single();
 
@@ -70,9 +77,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       const updateData: Partial<OutreachCampaign> = {};
-      if (name !== undefined) updateData.name = name;
-      if (description !== undefined) updateData.description = description;
-      if (status !== undefined) updateData.status = status;
+      if (name !== undefined) {
+        updateData.name = name;
+      }
+      if (description !== undefined) {
+        updateData.description = description;
+      }
+      if (status !== undefined) {
+        updateData.status = status;
+      }
 
       const { data: campaign, error } = await supabase
         .from('outreach_campaigns')
@@ -117,4 +130,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   } else {
     res.status(405).json({ error: 'Method not allowed' });
   }
-} 
+}

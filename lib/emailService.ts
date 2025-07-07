@@ -6,4 +6,4 @@ export const testEmailConnection = async () => {
   } catch (error) {
     return { success: false, error: 'Network error' };
   }
-}; 
+};
