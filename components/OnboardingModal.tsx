@@ -41,6 +41,7 @@
  */
 
 import { AnimatePresence, motion } from 'framer-motion';
+import Image from 'next/image';
 import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '../lib/auth';
 import { validateEmail, validateId } from '../lib/security';
@@ -539,29 +540,41 @@ export default function OnboardingModal() {
           {/* Header */}
           <div className='p-8 border-b border-gray-200 bg-gradient-to-r from-green-50 to-blue-50'>
             <div className='flex items-center justify-between'>
-              <div>
-                <h2 className='text-3xl font-bold text-gray-900 mb-2'>
-                  Welcome to TheGreenRoom.ai! 🎵
-                </h2>
-                <p className='text-gray-600 text-lg'>
-                  Let&apos;s get you set up to start booking gigs
-                </p>
-                <div className='mt-4 flex items-center gap-4'>
-                  <div className='flex items-center gap-2'>
-                    <span className='text-sm font-medium text-gray-600'>
-                      Progress:
-                    </span>
-                    <span className='text-lg font-bold text-green-600'>
-                      {getCompletedCount()}/{getTotalSteps()}
-                    </span>
-                  </div>
-                  <div className='flex items-center gap-2'>
-                    <span className='text-sm font-medium text-gray-600'>
-                      Next:
-                    </span>
-                    <span className='text-sm font-medium text-gray-900'>
-                      {steps[currentStep]?.title}
-                    </span>
+              <div className='flex items-center gap-4'>
+                {/* Logo */}
+                <div className='w-12 h-12 relative'>
+                  <Image
+                    src='/logo.svg'
+                    alt='TheGreenRoom.ai Logo'
+                    width={48}
+                    height={48}
+                    className='object-contain'
+                  />
+                </div>
+                                <div>
+                  <h2 className='text-3xl font-bold text-gray-900 mb-2'>
+                    Welcome to TheGreenRoom.ai! 🎵
+                  </h2>
+                  <p className='text-gray-600 text-lg'>
+                    Let&apos;s get you set up to start booking gigs
+                  </p>
+                  <div className='mt-4 flex items-center gap-4'>
+                    <div className='flex items-center gap-2'>
+                      <span className='text-sm font-medium text-gray-600'>
+                        Progress:
+                      </span>
+                      <span className='text-lg font-bold text-green-600'>
+                        {getCompletedCount()}/{getTotalSteps()}
+                      </span>
+                    </div>
+                    <div className='flex items-center gap-2'>
+                      <span className='text-sm font-medium text-gray-600'>
+                        Next:
+                      </span>
+                      <span className='text-sm font-medium text-gray-900'>
+                        {steps[currentStep]?.title}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>

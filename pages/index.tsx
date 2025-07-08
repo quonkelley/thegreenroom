@@ -155,6 +155,23 @@ function Home() {
               transition={{ duration: 0.6 }}
               className='mb-6'
             >
+              {/* Logo */}
+              <motion.div
+                variants={fadeInUp}
+                transition={{ duration: 0.8 }}
+                className='mb-12'
+              >
+                <div className='w-48 h-48 md:w-64 md:h-64 mx-auto mb-12 relative'>
+                  <Image
+                    src='/logo-dark.png'
+                    alt='TheGreenRoom.ai Logo'
+                    width={256}
+                    height={256}
+                    className='object-contain'
+                  />
+                </div>
+              </motion.div>
+
               <motion.div
                 className='inline-flex items-center px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full text-sm font-medium text-white/90 mb-8 cursor-pointer group'
                 whileHover={{
@@ -174,7 +191,7 @@ function Home() {
               transition={{ duration: 0.6 }}
               className='text-5xl md:text-7xl font-display font-bold mb-6 leading-tight'
             >
-              Your AI
+              No Manager?
               <motion.span
                 className='gradient-text inline-block'
                 animate={{
@@ -183,17 +200,18 @@ function Home() {
                 transition={{ duration: 3, repeat: Infinity }}
               >
                 {' '}
-                Booking Assistant
+                No Problem.
               </motion.span>
             </motion.h1>
 
             <motion.p
               variants={fadeInUp}
               transition={{ duration: 0.6 }}
-              className='text-xl md:text-2xl text-white/90 mb-12 max-w-3xl mx-auto leading-relaxed'
+              className='text-xl md:text-2xl text-white/90 mb-12 max-w-4xl mx-auto leading-relaxed'
             >
-              TheGreenRoom.ai helps independent artists and venues book smarter,
-              faster—with zero spreadsheets or stress.
+              TheGreenRoomAI helps indie artists book gigs, write pitches, and
+              get on more stages—without chasing venues or waiting on
+              gatekeepers.
             </motion.p>
 
             <motion.div
@@ -585,6 +603,24 @@ function Home() {
       {/* Footer */}
       <footer className='py-12 bg-dark-950 border-t border-white/10'>
         <div className='max-w-6xl mx-auto px-4 text-center'>
+          {/* Logo */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className='mb-6'
+          >
+            <div className='w-40 h-40 md:w-48 md:h-48 mx-auto mb-8 relative'>
+              <Image
+                src='/logo-dark.png'
+                alt='TheGreenRoom.ai Logo'
+                width={192}
+                height={192}
+                className='object-contain'
+              />
+            </div>
+          </motion.div>
+
           <div className='text-white/60 mb-4'>
             © 2024 TheGreenRoom.ai. All rights reserved.
           </div>

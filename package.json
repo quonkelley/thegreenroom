@@ -23,7 +23,8 @@
     "postinstall": "husky install",
     "pre-commit": "lint-staged",
     "quality": "npm run lint && npm run format:check && npm run type-check && npm run test",
-    "quality:fix": "npm run lint:fix && npm run format"
+    "quality:fix": "npm run lint:fix && npm run format",
+    "generate-logos": "node scripts/generate-logos.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.38.0",
